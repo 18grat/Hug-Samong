@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ฮักสมอง - แบบประเมิน MoCA</title>
+  
+  <!-- UI Framework & LIFF SDK -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap');
+    body { font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
+    canvas { touch-action: none; }
+    .btn-touch:active { transform: scale(0.97); }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen p-2 sm:p-4 flex flex-col justify-between">
+
+  <div class="max-w-md w-full mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden flex flex-col my-auto">
+    
+    <!-- แถบ Header แสดงขั้นตอนและคะแนนสด -->
+    <div class="bg-sky-600 text-white p-4 flex justify-between items-center shadow-md">
+      <div>
+        <h1 class="text-base sm:text-lg font-black leading-tight">🧠 ฮักสมอง: คัดกรอง MoCA</h1>
+        <p id="stepIndicator" class="text-xs text-sky-100 mt-0.5">หน้า 1 จาก 7: ข้อมูลทั่วไป</p>
+      </div>
+      <div class="bg-sky-700/90 px-3 py-1.5 rounded-2xl text-right border border-sky-400/30">
+        <p class="text-[10px] text-sky-200 leading-none">คะแนนที่ได้</p>
+        <span id="liveScoreDisplay" class="text-sm font-black">0 / 30</span>
+      </div>
+    </div>
+
+    <!-- กล่องแสดงเนื้อหาแต่ละหน้าจอ -->
+    <div class="p-4 sm:p-5 space-y-4">
+
+      <!-- ================= หน้า 1: ข้อมูลทั่วไปและการศึกษา ================= -->
+      <div id="page1" class="moca-screen space-y-4">
+        <h2 class="text-base font-bold text-slate-800 border-b pb-2">1. ข้อมูลผู้รับการประเมิน</h2>
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">ชื่อ - นามสกุล ผู้สูงอายุ</label>
+          <input type="text" id="patientName" placeholder="เช่น คุณยายสมศรี ใจดี" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm sm:text-base focus:border-sky-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">อายุ (ปี)</label>
+          <input type="number" id="patientAge" placeholder="เช่น 68" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm sm:text-base focus:border-sky-500 outline-none">
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 space-y-2">
+          <label class="block text-xs font-black text-amber-900">ระดับการศึกษา (เกณฑ์ปรับคะแนน MoCA):</label>
+          <div class="space-y-1.5">
+            <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+              <input type="radio" name="eduLevel" value="le6" checked class="w-4 h-4 text-sky-600">
+              <span>ประถมศึกษา หรือ &le; 6 ปี <strong>(บวกเพิ่ม +1 คะแนน)</strong></span>
+            </label>
+            <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+              <input type="radio" name="eduLevel" value="gt6" class="w-4 h-4 text-sky-600">
+              <span>มัธยมศึกษาขึ้นไป (&gt; 6 ปี)</span>
+            </label>
+          </div>
+        </div>
+
+        <button onclick="goToPage(2)" class="btn-touch w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-2xl shadow mt-2">
+          เริ่มทำแบบทดสอบ ➔
+        </button>
+      </div>
+
+      <!-- ================= หน้า 2: Visuospatial & Executive (5 คะแนน) ================= -->
+      <div id="page2" class="moca-screen hidden space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h2 class="text-base font-bold text-slate-800">2. มิติสัมพันธ์ & การบริหารจัดการ</h2>
+          <span class="text-xs text-sky-600 font-bold">เต็ม 5 คะแนน</span>
+        </div>
+
+        <!-- 1.1 ลากเส้นสลับลำดับบน Canvas -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <p class="text-xs font-bold text-slate-700">ก. ลากเส้นต่อจุดสลับ (1 ➔ ก ➔ 2 ➔ ข...)</p>
+            <span id="trailBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
+              0 / 1 แต้ม
+            </span>
+          </div>
+
+          <div class="border-2 border-dashed border-sky-300 rounded-2xl relative bg-sky-50/40 p-1" style="touch-action: none;">
+            <canvas id="trailCanvas" width="340" height="250" class="w-full bg-white rounded-xl shadow-inner block" style="touch-action: none; user-select: none; -webkit-user-select: none;"></canvas>
+            
+            <button type="button" onclick="resetTrailCanvas()" class="absolute bottom-2 right-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-lg border shadow-sm z-10 transition-all">
+              🔄 ล้างเส้น
+            </button>
+          </div>
+
+          <p id="trailHint" class="text-[11px] text-slate-500 text-center">เริ่มลากจาก "1" ไป "ก" จนถึง "จ"</p>
+        </div>
+
+        <!-- 1.2 วาดรูปลูกบาศก์ 3 มิติ (Cube) -->
+        <div class="border-t pt-3 space-y-2">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-xs font-bold text-slate-700">ข. คัดลอกรูปลูกบาศก์ 3 มิติ (Cube)</p>
+              <p class="text-[10px] text-slate-400">วาดตามรูปตัวอย่าง 3D ให้ครบทุกด้าน</p>
+            </div>
+            <span id="cubeBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
+              0 / 1 แต้ม
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="border-2 border-slate-300 rounded-2xl p-2 bg-white flex flex-col items-center justify-between shadow-sm min-h-[160px]">
+              <span class="text-[10px] font-extrabold text-slate-800 mb-1">📐 ภาพตัวอย่าง</span>
+              <svg viewBox="0 0 160 150" width="120" height="110" class="my-auto">
+                <rect x="25" y="55" width="70" height="70" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <polygon points="25,55 60,20 130,20 95,55" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <polygon points="95,55 130,20 130,90 95,125" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <line x1="25" y1="125" x2="60" y2="90" stroke="#000000" stroke-width="3" stroke-linecap="round" />
+                <line x1="60" y1="90" x2="130" y2="90" stroke="#000000" stroke-width="3" stroke-linecap="round" />
+                <line x1="60" y1="20" x2="60" y2="90" stroke="#000000" stroke-width="3" stroke-linecap="round" />
+              </svg>
+              <span class="text-[9px] text-slate-500 font-bold">วาดตามรูปทรงนี้</span>
+            </div>
+
+            <div class="border-2 border-dashed border-sky-300 rounded-2xl relative bg-sky-50/40 p-1 min-h-[160px]" style="touch-action: none;">
+              <canvas id="cubeCanvas" width="300" height="260" class="w-full h-full bg-white rounded-xl shadow-inner block" style="touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair;"></canvas>
+              
+              <button type="button" onclick="clearCubeCanvas()" class="absolute bottom-2 right-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md border shadow-sm z-10">
+                🔄 ล้าง
+              </button>
+            </div>
+          </div>
+
+          <div id="cubeAnalysisBox" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center transition-all">
+            <p id="cubeHint" class="text-xs text-slate-600 font-medium">
+              ✏️ ใช้นิ้วหรือเมาส์วาดรูปลูกบาศก์ 3 มิติลงในช่องขวา
+            </p>
+          </div>
+        </div>
+
+        <!-- 1.3 วาดหน้าปัดนาฬิกา บอกเวลา 11:10 น. -->
+        <div class="border-t pt-3 space-y-2">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-xs font-bold text-slate-700">ค. วาดหน้าปัดนาฬิกา (บอกเวลา 11:10 น.)</p>
+              <p class="text-[10px] text-slate-400">วาดวงกลม ใส่ตัวเลข 1-12 ให้ครบ และวาดเข็มสั้น-ยาวชี้เวลา 11:10 น.</p>
+            </div>
+            <span id="clockBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
+              0 / 3 แต้ม
+            </span>
+          </div>
+
+          <div class="border-2 border-dashed border-sky-300 rounded-2xl relative bg-sky-50/40 p-1 min-h-[260px]">
+            <canvas id="clockCanvas" width="340" height="260" class="w-full h-full bg-white rounded-xl shadow-inner block" style="touch-action: none; -webkit-user-select: none; user-select: none; cursor: crosshair;"></canvas>
+            
+            <button type="button" onclick="clearClockCanvas()" class="absolute bottom-2 right-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-md border shadow-sm z-10">
+              🔄 ล้าง
+            </button>
+          </div>
+
+          <div id="clockAnalysisBox" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 transition-all">
+            <div class="grid grid-cols-3 gap-1.5 text-center text-[10px] mb-1.5">
+              <div id="chkCircle" class="py-1 px-1 rounded bg-slate-100 text-slate-500 font-semibold">⭕ วงกลม (0/1)</div>
+              <div id="chkNumbers" class="py-1 px-1 rounded bg-slate-100 text-slate-500 font-semibold">🔢 ตัวเลข (0/1)</div>
+              <div id="chkHands" class="py-1 px-1 rounded bg-slate-100 text-slate-500 font-semibold">⏰ เวลา 11:10 (0/1)</div>
+            </div>
+            <p id="clockHint" class="text-xs text-slate-600 font-medium text-center">
+              ✏️ วาดวงกลมหน้าปัด ใส่ตัวเลข 1–12 และเข็มนาฬิกาบอกเวลา 11:10 น.
+            </p>
+          </div>
+        </div>
+
+        <button onclick="goToPage(3)" class="btn-touch w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-2xl shadow mt-2">
+          หน้าถัดไป ➔
+        </button>
+      </div>
+
+      <!-- ================= หน้า 3: Naming (3 คะแนน) ================= -->
+      <div id="page3" class="moca-screen hidden space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h2 class="text-base font-bold text-slate-800">3. การเรียกชื่อสัตว์ (Naming)</h2>
+          <span id="namingTotalBadge" class="text-xs text-sky-600 font-bold">แต้ม 0/3 คะแนน</span>
+        </div>
+
+        <!-- สัตว์ตัวที่ 1 -->
+        <div class="bg-slate-50 p-3 rounded-2xl border space-y-2">
+          <div class="flex justify-between items-center">
+            <p class="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <img src="image/1787927807502.jpg" alt="" class="rounded object-cover"> สัตว์ตัวที่ 1
+            </p>
+            <span id="badge-animal1" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
+              0 / 1 แต้ม
+            </span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="setDirect('animal1', 1, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">สิงโต</button>
+            <button onclick="setDirect('animal1', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">เสือ</button>
+            <button onclick="setDirect('animal1', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">เสือดาว</button>
+          </div>
+        </div>
+
+        <!-- สัตว์ตัวที่ 2 -->
+        <div class="bg-slate-50 p-3 rounded-2xl border space-y-2">
+          <div class="flex justify-between items-center">
+            <p class="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <img src="image/แรด.jpg" alt="" class="rounded object-cover"> สัตว์ตัวที่ 2
+            </p>
+            <span id="badge-animal2" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
+              0 / 1 แต้ม
+            </span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="setDirect('animal2', 1, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">แรด</button>
+            <button onclick="setDirect('animal2', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">ฮิปโป</button>
+            <button onclick="setDirect('animal2', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">หมูป่า</button>
+          </div>
+        </div>
+
+        <!-- สัตว์ตัวที่ 3 -->
+        <div class="bg-slate-50 p-3 rounded-2xl border space-y-2">
+          <div class="flex justify-between items-center">
+            <p class="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <img src="image/อูฐ.jpg" alt="" class="rounded object-cover"> สัตว์ตัวที่ 3
+            </p>
+            <span id="badge-animal3" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
+              0 / 1 แต้ม
+            </span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="setDirect('animal3', 1, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">อูฐ</button>
+            <button onclick="setDirect('animal3', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">ม้า</button>
+            <button onclick="setDirect('animal3', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">ลา</button>
+          </div>
+        </div>
+                
+        <div class="flex gap-2 pt-2">
+          <button onclick="goToPage(2)" class="btn-touch w-1/3 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl">ย้อนกลับ</button>
+          <button onclick="goToPage(4)" class="btn-touch w-2/3 bg-sky-600 text-white font-bold py-3 rounded-xl">ถัดไป: ความจำ ➔</button>
+        </div>
+      </div>
+
+      <!-- ================= หน้า 4: Memory Registration ================= -->
+      <div id="page4" class="moca-screen hidden space-y-4 text-center py-2">
+        <div class="flex justify-between items-center border-b pb-2 text-left">
+          <h2 class="text-base font-bold text-slate-800">4. การลงทะเบียนความจำ (Memory)</h2>
+          <span class="text-xs text-amber-600 font-bold">ไม่คิดคะแนนรอบนี้</span>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-600 font-medium">
+          🎧 ตั้งใจฟังคำศัพท์ 5 คำนี้อย่างช้าๆ ชัดๆ (จะมีการถามซ้ำในขั้นตอนสุดท้าย)
+        </p>
+
+        <div class="bg-sky-50 border-2 border-sky-200 rounded-3xl p-5 shadow-inner">
+          <div class="flex flex-wrap justify-center items-center gap-2 sm:gap-3 text-lg sm:text-2xl font-black text-sky-900 tracking-wide">
+            <span id="word0" class="word-chip px-3 py-1.5 rounded-2xl transition-all duration-300">ใบหน้า</span>
+            <span class="text-sky-300">•</span>
+            <span id="word1" class="word-chip px-3 py-1.5 rounded-2xl transition-all duration-300">ผ้าไหม</span>
+            <span class="text-sky-300">•</span>
+            <span id="word2" class="word-chip px-3 py-1.5 rounded-2xl transition-all duration-300">วัด</span>
+            <span class="text-sky-300">•</span>
+            <span id="word3" class="word-chip px-3 py-1.5 rounded-2xl transition-all duration-300">มะลิ</span>
+            <span class="text-sky-300">•</span>
+            <span id="word4" class="word-chip px-3 py-1.5 rounded-2xl transition-all duration-300">สีแดง</span>
+          </div>
+        </div>
+
+        <button id="btnSpeak" onclick="speakWordsSlowly()" class="btn-touch w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-black text-base py-3.5 rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all">
+          <span id="speakIcon" class="text-xl">🔊</span>
+          <span id="speakText">กดเพื่อฟังเสียงอ่านคำศัพท์ (แบบช้า-ชัด)</span>
+        </button>
+
+        <div class="flex gap-2 pt-2">
+          <button onclick="goToPage(3)" class="btn-touch w-1/3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl">ย้อนกลับ</button>
+          <button onclick="goToPage(5)" class="btn-touch w-2/3 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl shadow">จำได้แล้ว ไปต่อ ➔</button>
+        </div>
+      </div>
+
+      <!-- ================= หน้า 5: Attention & Calculation (6 คะแนน) ================= -->
+      <div id="page5" class="moca-screen hidden space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h2 class="text-base font-bold text-slate-800">5. สมาธิและความใส่ใจ (Attention)</h2>
+          <span class="text-xs text-sky-600 font-bold">เต็ม 6 คะแนน</span>
+        </div>
+
+        <!-- 5. ก. จำตัวเลข -->
+        <div class="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+          <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+            <p class="text-xs font-bold text-slate-700">ก. จำตัวเลข (เดินหน้า & ถอยหลัง)</p>
+            <span id="digitTotalBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600">
+              0 / 2 แต้ม
+            </span>
+          </div>
+
+          <!-- ตอนที่ 1: เดินหน้า -->
+          <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2 shadow-sm">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-700">1. ทวนตัวเลขตามลำดับ (เดินหน้า)</span>
+              <span id="badgeFwd" class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">0 แต้ม</span>
+            </div>
+            
+            <p class="text-[11px] text-slate-500">ฟังตัวเลข 5 ตัว แล้วกดปุ่มไมโครโฟนพูดทวนตามลำดับ</p>
+            
+            <div class="flex gap-2">
+              <button type="button" id="btnPlayFwd" onclick="playDigitAudio('fwd')" class="btn-touch flex-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
+                <span>🔊</span> <span>ฟังโจทย์</span>
+              </button>
+              <button type="button" id="btnMicFwd" onclick="startDigitListening('fwd')" class="btn-touch flex-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
+                <span>🎙️</span> <span id="micTextFwd">กดแล้วพูดทวน</span>
+              </button>
+            </div>
+            <p id="hintFwd" class="text-[11px] text-slate-600 text-center font-medium min-h-[16px]"></p>
+          </div>
+
+          <!-- ตอนที่ 2: ถอยหลัง -->
+          <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2 shadow-sm">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-700">2. ทวนตัวเลขย้อนกลับ (ถอยหลัง)</span>
+              <span id="badgeBwd" class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">0 แต้ม</span>
+            </div>
+            
+            <p class="text-[11px] text-slate-500">ฟังตัวเลข 3 ตัว แล้วกดปุ่มไมโครโฟนพูด<strong class="text-rose-600">ย้อนกลับจากหลังมาหน้า</strong></p>
+            
+            <div class="flex gap-2">
+              <button type="button" id="btnPlayBwd" onclick="playDigitAudio('bwd')" class="btn-touch flex-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
+                <span>🔊</span> <span>ฟังโจทย์</span>
+              </button>
+              <button type="button" id="btnMicBwd" onclick="startDigitListening('bwd')" class="btn-touch flex-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
+                <span>🎙️</span> <span id="micTextBwd">กดแล้วพูดย้อนกลับ</span>
+              </button>
+            </div>
+            <p id="hintBwd" class="text-[11px] text-slate-600 text-center font-medium min-h-[16px]"></p>
+          </div>
+        </div>
+
+        <!-- 5. ข. เคาะตามจังหวะตัวเลข -->
+        <div class="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-slate-800">ข. เคาะเมื่อได้ยินเลข "1" (1 แต้ม)</p>
+              <p class="text-[11px] text-slate-400">เคาะเฉพาะเลข 1 จากชุดตัวเลข 29 ตัว</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span id="tap-status" class="text-[11px] font-bold text-slate-600 bg-white px-2 py-0.5 rounded-lg border shadow-sm">พร้อมเริ่ม</span>
+              <span id="badgeTap" class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">0 แต้ม</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" id="btn-start-tap" onclick="startTappingSequence()" class="col-span-1 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-sm transition">
+              ▶️ เริ่มอ่าน
+            </button>
+            <button type="button" id="btn-tap-target" onclick="recordUserTap()" disabled class="col-span-2 py-3 bg-sky-600 hover:bg-sky-700 active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-1.5">
+              👆 กดเคาะ (เมื่อได้ยินเลข 1)
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-600 px-1 font-medium">
+            <span>ถูกต้อง (เลข 1): <strong id="tap-correct" class="text-emerald-600 text-sm">0</strong></span>
+            <span>กดผิด/เกิน: <strong id="tap-false" class="text-rose-600 text-sm">0</strong></span>
+            <span>ตกหล่น: <strong id="tap-missed" class="text-rose-600 text-sm">0</strong></span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
+            <div id="tap-eval-pass" class="py-2 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-[11px] font-bold text-center transition-all">
+              ✓ ถูกต้อง / ผิด ≤ 1 (1 แต้ม)
+            </div>
+            <div id="tap-eval-fail" class="py-2 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-[11px] font-bold text-center transition-all">
+              ✗ ผิดพลาด ≥ 2 (0 แต้ม)
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. ค. คิดเลข: 100 - 7 ต่อเนื่อง 5 ครั้ง -->
+        <div id="serial7s-container" class="bg-slate-50 p-4 rounded-3xl border-2 border-slate-200 space-y-4">
+          <div class="flex justify-between items-center border-b pb-2">
+            <div>
+              <h3 class="text-sm sm:text-base font-black text-slate-800">ค. คิดเลข: ลบ 7 ต่อเนื่อง 5 ครั้ง</h3>
+              <p class="text-xs text-slate-500">ลบ 7 ทีละครั้งตามลำดับ (เต็ม 3 คะแนน)</p>
+            </div>
+            <span id="serialTotalBadge" class="text-xs font-black text-slate-600 bg-slate-200 px-3 py-1 rounded-2xl border border-slate-300 transition-colors shadow-sm">
+              แต้ม 0/3 คะแนน
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2.5">
+            <!-- ข้อ 1 -->
+            <div id="box-step-1" class="bg-white p-3 rounded-2xl border-2 border-sky-300 flex items-center justify-between gap-2 shadow-sm transition-all">
+              <span id="label-step-1" class="text-sm sm:text-base font-black text-sky-800 bg-sky-100 px-2.5 py-1 rounded-xl border border-sky-200 min-w-[90px] text-center">100 - 7</span>
+              <span id="badge-step-1" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-500">รอคำตอบ</span>
+              <input type="number" id="step1" placeholder="คำตอบ" onkeydown="handleEnter(event, 1)" class="w-24 text-center border-2 border-slate-300 rounded-xl py-1.5 px-2 text-base font-black text-slate-800 focus:outline-none focus:border-sky-500">
+              <button id="btn-submit-1" onclick="submitStep(1)" class="btn-touch px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-black shadow">ยืนยัน</button>
+            </div>
+
+            <!-- ข้อ 2 -->
+            <div id="box-step-2" class="bg-slate-100 opacity-60 p-3 rounded-2xl border-2 border-slate-200 flex items-center justify-between gap-2 shadow-sm transition-all">
+              <span id="label-step-2" class="text-sm sm:text-base font-bold text-slate-400 bg-slate-200 px-2.5 py-1 rounded-xl border border-slate-300 min-w-[90px] text-center">รอข้อ 1</span>
+              <span id="badge-step-2" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-400">-</span>
+              <input type="number" id="step2" placeholder="คำตอบ" disabled onkeydown="handleEnter(event, 2)" class="w-24 text-center border-2 border-slate-200 rounded-xl py-1.5 px-2 text-base font-black text-slate-800 focus:outline-none bg-slate-100">
+              <button id="btn-submit-2" disabled onclick="submitStep(2)" class="btn-touch px-3 py-1.5 bg-slate-300 text-slate-400 rounded-xl text-xs font-black shadow cursor-not-allowed">ยืนยัน</button>
+            </div>
+
+            <!-- ข้อ 3 -->
+            <div id="box-step-3" class="bg-slate-100 opacity-60 p-3 rounded-2xl border-2 border-slate-200 flex items-center justify-between gap-2 shadow-sm transition-all">
+              <span id="label-step-3" class="text-sm sm:text-base font-bold text-slate-400 bg-slate-200 px-2.5 py-1 rounded-xl border border-slate-300 min-w-[90px] text-center">รอข้อ 2</span>
+              <span id="badge-step-3" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-400">-</span>
+              <input type="number" id="step3" placeholder="คำตอบ" disabled onkeydown="handleEnter(event, 3)" class="w-24 text-center border-2 border-slate-200 rounded-xl py-1.5 px-2 text-base font-black text-slate-800 focus:outline-none bg-slate-100">
+              <button id="btn-submit-3" disabled onclick="submitStep(3)" class="btn-touch px-3 py-1.5 bg-slate-300 text-slate-400 rounded-xl text-xs font-black shadow cursor-not-allowed">ยืนยัน</button>
+            </div>
+
+            <!-- ข้อ 4 -->
+            <div id="box-step-4" class="bg-slate-100 opacity-60 p-3 rounded-2xl border-2 border-slate-200 flex items-center justify-between gap-2 shadow-sm transition-all">
+              <span id="label-step-4" class="text-sm sm:text-base font-bold text-slate-400 bg-slate-200 px-2.5 py-1 rounded-xl border border-slate-300 min-w-[90px] text-center">รอข้อ 3</span>
+              <span id="badge-step-4" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-400">-</span>
+              <input type="number" id="step4" placeholder="คำตอบ" disabled onkeydown="handleEnter(event, 4)" class="w-24 text-center border-2 border-slate-200 rounded-xl py-1.5 px-2 text-base font-black text-slate-800 focus:outline-none bg-slate-100">
+              <button id="btn-submit-4" disabled onclick="submitStep(4)" class="btn-touch px-3 py-1.5 bg-slate-300 text-slate-400 rounded-xl text-xs font-black shadow cursor-not-allowed">ยืนยัน</button>
+            </div>
+
+            <!-- ข้อ 5 -->
+            <div id="box-step-5" class="bg-slate-100 opacity-60 p-3 rounded-2xl border-2 border-slate-200 flex items-center justify-between gap-2 shadow-sm transition-all">
+              <span id="label-step-5" class="text-sm sm:text-base font-bold text-slate-400 bg-slate-200 px-2.5 py-1 rounded-xl border border-slate-300 min-w-[90px] text-center">รอข้อ 4</span>
+              <span id="badge-step-5" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-400">-</span>
+              <input type="number" id="step5" placeholder="คำตอบ" disabled onkeydown="handleEnter(event, 5)" class="w-24 text-center border-2 border-slate-200 rounded-xl py-1.5 px-2 text-base font-black text-slate-800 focus:outline-none bg-slate-100">
+              <button id="btn-submit-5" disabled onclick="submitStep(5)" class="btn-touch px-3 py-1.5 bg-slate-300 text-slate-400 rounded-xl text-xs font-black shadow cursor-not-allowed">ยืนยัน</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t">
+            <div id="criteriaSummary" class="font-bold">สถานะ: กำลังรอการกรอกข้อมูลข้อที่ 1</div>
+            <div class="text-[11px] text-slate-400">เกณฑ์: ถูก 4-5 ตัว (3 แต้ม) | ถูก 2-3 ตัว (2 แต้ม) | ถูก 1 ตัว (1 แต้ม)</div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button onclick="goToPage(4)" class="btn-touch w-1/3 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl">ย้อนกลับ</button>
+          <button onclick="goToPage(6)" class="btn-touch w-2/3 bg-sky-600 text-white font-bold py-3 rounded-xl">ถัดไป: ภาษา ➔</button>
+        </div>
+      </div>
+
+      <!-- ================= หน้า 6: Language & Abstraction (5 คะแนน) ================= -->
+      <div id="page6" class="moca-screen hidden space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h2 class="text-base font-bold text-slate-800">6. ภาษาและความคิดเชิงนามธรรม</h2>
+          <span class="text-xs text-sky-600 font-bold">เต็ม 5 คะแนน</span>
+        </div>
+
+        <!-- ก. ทวนประโยคยาว 2 ประโยค -->
+        <div id="sentence-repeat-container" class="bg-slate-50 p-4 rounded-2xl border space-y-4">
+          <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="text-sm font-bold text-slate-800">ก. ทวนประโยคยาว 2 ประโยค (เต็ม 2)</h3>
+            <span id="sentenceTotalBadge" class="text-xs text-slate-600 font-bold bg-slate-200 px-2.5 py-1 rounded-full border border-slate-300 transition-colors">
+              แต้ม 0/2 คะแนน
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-500">
+            กดปุ่ม <b>"🔊 ฟังเสียงประโยค"</b> ให้จบ จากนั้นกดปุ่ม <b>"🎙️ พูดตาม"</b> (พูดถูกทุกคำได้ 1 คะแนนต่อข้อ)
+          </p>
+
+          <div class="space-y-3">
+            <!-- ประโยคที่ 1 -->
+            <div id="box-sent-1" class="bg-white p-3 rounded-xl border flex flex-col gap-2.5 shadow-sm transition-all">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">ประโยคที่ 1</span>
+                <span id="badge-sent-1" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500">0 / 1 แต้ม</span>
+              </div>
+              <div class="p-2 bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700">
+                📝 ฉันรู้ว่าจอมเป็นคนเดียวที่มาช่วยงานในวันนี้
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button id="btn-play-1" onclick="playSentence(1)" class="flex items-center justify-center gap-1 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold shadow-sm active:scale-95">🔊 ฟังเสียงประโยค</button>
+                <button id="btn-record-1" disabled onclick="toggleRecordSentence(1)" class="flex items-center justify-center gap-1 py-2 bg-slate-200 text-slate-400 rounded-lg text-xs font-bold shadow-sm cursor-not-allowed">🎙️ พูดตาม</button>
+              </div>
+              <div class="text-xs bg-slate-100 p-2 rounded-lg border text-slate-600">
+                <span class="font-bold text-slate-500">ข้อความที่พูดได้:</span> 
+                <span id="transcript-1" class="text-slate-700 font-medium italic">ยังไม่ได้บันทึกเสียง</span>
+              </div>
+            </div>
+
+            <!-- ประโยคที่ 2 -->
+            <div id="box-sent-2" class="bg-white p-3 rounded-xl border flex flex-col gap-2.5 shadow-sm transition-all">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">ประโยคที่ 2</span>
+                <span id="badge-sent-2" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500">0 / 1 แต้ม</span>
+              </div>
+              <div class="p-2 bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700">
+                📝 แมวมักซ่อนตัวอยู่หลังเก้าอี้เมื่อมีหมาอยู่ในห้อง
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button id="btn-play-2" onclick="playSentence(2)" class="flex items-center justify-center gap-1 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold shadow-sm active:scale-95">🔊 ฟังเสียงประโยค</button>
+                <button id="btn-record-2" disabled onclick="toggleRecordSentence(2)" class="flex items-center justify-center gap-1 py-2 bg-slate-200 text-slate-400 rounded-lg text-xs font-bold shadow-sm cursor-not-allowed">🎙️ พูดตาม</button>
+              </div>
+              <div class="text-xs bg-slate-100 p-2 rounded-lg border text-slate-600">
+                <span class="font-bold text-slate-500">ข้อความที่พูดได้:</span> 
+                <span id="transcript-2" class="text-slate-700 font-medium italic">ยังไม่ได้บันทึกเสียง</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t">
+            <div id="sentenceSummary">สถานะ: รอการฟังและพูดทวนประโยค</div>
+            <div class="text-[11px] text-slate-400">เกณฑ์: ตรงทุกคำได้ 1 คะแนน / มีคำผิดได้ 0 คะแนน</div>
+          </div>
+        </div>
+
+        <!-- ข. ความคล่องทางภาษา: คำขึ้นต้นด้วย ก ใน 60 วิ -->
+        <div id="fluency-container" class="bg-slate-50 p-4 rounded-2xl border space-y-3">
+          <div class="flex justify-between items-center border-b pb-2">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">ข. ความคล่องทางภาษา (ตัวอักษร "ก")</h3>
+              <p class="text-xs text-slate-500">บอกคำขึ้นต้นด้วย "ก" ภายใน 60 วิ (≥ 11 คำ ได้ 1 แต้ม)</p>
+            </div>
+            <span id="fluencyTotalBadge" class="text-xs font-bold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full border border-slate-300">
+              แต้ม 0/1 คะแนน
+            </span>
+          </div>
+
+          <div class="bg-white p-3 rounded-xl border shadow-sm flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-300 flex flex-col items-center justify-center text-amber-900 shadow-inner">
+                <span class="text-[9px] font-bold">เวลา</span>
+                <span id="fluencyTimer" class="text-lg font-black">60</span>
+              </div>
+              <div>
+                <p class="text-[11px] text-slate-500">คำที่ถูกต้อง:</p>
+                <p class="text-base font-black text-sky-700"><span id="validWordCount">0</span> <span class="text-xs font-normal text-slate-400">คำ (เป้าหมาย ≥ 11)</span></p>
+              </div>
+            </div>
+            <button type="button" id="btnStartFluency" onclick="startFluencyTest()" class="btn-touch px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1">
+              <span>🎙️</span> <span id="startBtnText">เริ่มจับเวลา 60 วิ</span>
+            </button>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs font-bold text-slate-600 px-1">
+              <span>คำที่ตรวจจับได้:</span>
+              <span id="liveHearingStatus" class="text-[10px] text-slate-400">ยังไม่เริ่ม</span>
+            </div>
+            <div id="wordChipsContainer" class="bg-white p-2.5 rounded-xl border border-slate-200 min-h-[60px] max-h-[120px] overflow-y-auto flex flex-wrap gap-1.5 items-center content-start">
+              <span class="text-xs text-slate-400 italic" id="emptyWordPlaceholder">กดเริ่มแล้วพูดคำที่ขึ้นต้นด้วย ก</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ค. บอกความเหมือนเชิงนามธรรม -->
+        <div id="abstraction-container" class="bg-slate-50 p-4 rounded-2xl border space-y-3">
+          <div class="flex justify-between items-center border-b pb-2">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">ค. บอกความเหมือนเชิงนามธรรม (เต็ม 2)</h3>
+              <p class="text-xs text-slate-500">ตัวอย่าง: กล้วย - ส้ม = ผลไม้</p>
+            </div>
+            <span id="abstractionTotalBadge" class="text-xs font-bold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full border border-slate-300">
+              แต้ม 0/2 คะแนน
+            </span>
+          </div>
+
+          <div class="space-y-3">
+            <!-- ข้อ 1 -->
+            <div id="box-abs-1" class="bg-white p-3 rounded-xl border border-slate-200 space-y-2 shadow-sm">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">1. รถไฟ — จักรยาน</span>
+                <span id="badge-abs-1" class="text-xs px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500">0 / 1 แต้ม</span>
+              </div>
+              <button type="button" id="btn-abs-mic-1" onclick="startAbstractionVoice(1)" class="btn-touch w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                <span id="mic-icon-1">🎙️</span> <span id="mic-text-1">กดแล้วพูดตอบ</span>
+              </button>
+              <div class="text-xs bg-slate-50 p-2 rounded-lg border border-slate-200 text-slate-600">
+                <span class="font-bold text-slate-500">พูดว่า:</span> <span id="transcript-abs-1" class="text-slate-800 font-medium italic">ยังไม่ได้บันทึก</span>
+              </div>
+              <div id="solution-box-1" class="hidden p-2 rounded-lg border text-xs space-y-1">
+                <div class="font-bold" id="solution-status-1"></div>
+                <p class="text-slate-600">💡 เฉลย: เป็น "ยานพาหนะ", "ใช้เดินทาง", "ใช้ขนส่ง"</p>
+              </div>
+            </div>
+
+            <!-- ข้อ 2 -->
+            <div id="box-abs-2" class="bg-white p-3 rounded-xl border border-slate-200 space-y-2 shadow-sm">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">2. นาฬิกา — ไม้บรรทัด</span>
+                <span id="badge-abs-2" class="text-xs px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500">0 / 1 แต้ม</span>
+              </div>
+              <button type="button" id="btn-abs-mic-2" onclick="startAbstractionVoice(2)" class="btn-touch w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                <span id="mic-icon-2">🎙️</span> <span id="mic-text-2">กดแล้วพูดตอบ</span>
+              </button>
+              <div class="text-xs bg-slate-50 p-2 rounded-lg border border-slate-200 text-slate-600">
+                <span class="font-bold text-slate-500">พูดว่า:</span> <span id="transcript-abs-2" class="text-slate-800 font-medium italic">ยังไม่ได้บันทึก</span>
+              </div>
+              <div id="solution-box-2" class="hidden p-2 rounded-lg border text-xs space-y-1">
+                <div class="font-bold" id="solution-status-2"></div>
+                <p class="text-slate-600">💡 เฉลย: เป็น "เครื่องมือวัด", "อุปกรณ์วัด", "ใช้วัด"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button onclick="goToPage(5)" class="btn-touch w-1/3 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl">ย้อนกลับ</button>
+          <button onclick="goToPage(7)" class="btn-touch w-2/3 bg-sky-600 text-white font-bold py-3 rounded-xl">ถัดไป: ความจำล่าช้า ➔</button>
+        </div>
+      </div>
+
+      <!-- ================= หน้า 7: Delayed Recall & Orientation (11 คะแนน) ================= -->
+      <div id="page7" class="moca-screen hidden space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h2 class="text-base font-bold text-slate-800">7. ความจำล่าช้า & วันเวลาสถานที่</h2>
+          <span class="text-xs text-sky-600 font-bold">เต็ม 11 คะแนน</span>
+        </div>
+
+        <!-- 7. ก. ทวนคำศัพท์ 5 คำที่จำไว้ (เต็ม 5 คะแนน - โหมดพูดตอบ) -->
+        <div id="delayed-recall-container" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3.5">
+          <div class="flex justify-between items-center border-b pb-2">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">ก. ทวนคำศัพท์ 5 คำที่จำไว้ (เต็ม 5)</h3>
+              <p class="text-xs text-slate-500">พูดทวนคำศัพท์ 5 คำที่จำไว้จากข้อ 4 (ไม่ต้องเรียงลำดับ)</p>
+            </div>
+            <span id="recallTotalBadge" class="text-xs font-bold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full border border-slate-300 transition-colors">
+              แต้ม 0/5 คะแนน
+            </span>
+          </div>
+
+          <div class="bg-white p-3 rounded-xl border shadow-sm flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-300 flex flex-col items-center justify-center text-amber-900 shadow-inner">
+                <span class="text-[9px] font-bold">เวลา</span>
+                <span id="recallTimer" class="text-lg font-black">60</span>
+              </div>
+              <div>
+                <p class="text-[11px] text-slate-500">คำที่ทวนถูก (ได้แต้ม):</p>
+                <p class="text-base font-black text-sky-700">
+                  <span id="validRecallCount">0</span> 
+                  <span class="text-xs font-normal text-slate-400">/ 5 คำ</span>
+                </p>
+              </div>
+            </div>
+            <button type="button" id="btnStartRecall" onclick="startRecallVoiceTest()" class="btn-touch px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1 active:scale-95 transition-all">
+              <span>🎙️</span> <span id="recallBtnText">เริ่มพูดทวนคำศัพท์</span>
+            </button>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs font-bold text-slate-600 px-1">
+              <span>รายการคำที่พูด:</span>
+              <span id="recallHearingStatus" class="text-[10px] text-slate-400">ยังไม่เริ่ม</span>
+            </div>
+            <div id="recallChipsContainer" class="bg-white p-2.5 rounded-xl border border-slate-200 min-h-[60px] max-h-[120px] overflow-y-auto flex flex-wrap gap-1.5 items-center content-start">
+              <span class="text-xs text-slate-400 italic" id="emptyRecallPlaceholder">กดปุ่มเริ่มแล้วพูดทวนคำศัพท์ทั้ง 5 คำ (ใบหน้า, ผ้าไหม, วัด, มะลิ, สีแดง)</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t">
+            <div id="recallSummary">
+              เกณฑ์: ทวนถูกคำละ 1 แต้ม (ไม่มีการบอกใบ้)
+            </div>
+            <div class="text-[11px] text-slate-400">
+              <span class="text-emerald-600 font-bold">● ถูก</span> | 
+              <span class="text-rose-600 font-bold">● ผิด</span> | 
+              <span class="text-amber-600 font-bold">● ซ้ำ</span>
+            </div>
+          </div>
+        </div>
+
+<!-- 7. ข. การรับรู้วัน เวลา สถานที่ (เต็ม 6 คะแนน - โหมดฟังคำถามและพูดตอบ) -->
+        <div id="orientation-container" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+          <div class="flex justify-between items-center border-b pb-2">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">ข. การรับรู้วัน เวลา สถานที่ (เต็ม 6)</h3>
+              <p class="text-[11px] text-slate-500">กดฟังคำถาม แล้วกดไมโครโฟนเพื่อตอบ (ข้อละ 1 แต้ม)</p>
+            </div>
+            <span id="orientationTotalBadge" class="text-xs font-bold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full border border-slate-300">
+              แต้ม 0/6 คะแนน
+            </span>
+          </div>
+
+          <div class="space-y-2.5">
+            <!-- 1. วันที่ -->
+            <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">1. วันที่เท่าไหร่?</span>
+                <span id="ori-badge-date" class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-400">0 แต้ม</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="playOriQuestion('date')" class="btn-touch py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🔊</span> ฟังคำถาม
+                </button>
+                <button type="button" id="ori-btn-date" onclick="recordOrientation('date')" class="btn-touch py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🎙️</span> กดแล้วตอบ
+                </button>
+              </div>
+              <p id="ori-ans-date" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
+            </div>
+
+            <!-- 2. เดือน -->
+            <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">2. ตอนนี้เดือนอะไร?</span>
+                <span id="ori-badge-month" class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-400">0 แต้ม</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="playOriQuestion('month')" class="btn-touch py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🔊</span> ฟังคำถาม
+                </button>
+                <button type="button" id="ori-btn-month" onclick="recordOrientation('month')" class="btn-touch py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🎙️</span> กดแล้วตอบ
+                </button>
+              </div>
+              <p id="ori-ans-month" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
+            </div>
+
+            <!-- 3. ปี พ.ศ. -->
+            <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">3. ปีนี้ปี พ.ศ. อะไร?</span>
+                <span id="ori-badge-year" class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-400">0 แต้ม</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="playOriQuestion('year')" class="btn-touch py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🔊</span> ฟังคำถาม
+                </button>
+                <button type="button" id="ori-btn-year" onclick="recordOrientation('year')" class="btn-touch py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🎙️</span> กดแล้วตอบ
+                </button>
+              </div>
+              <p id="ori-ans-year" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
+            </div>
+
+            <!-- 4. วันในสัปดาห์ -->
+            <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">4. วันนี้วันอะไร?</span>
+                <span id="ori-badge-day" class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-400">0 แต้ม</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="playOriQuestion('day')" class="btn-touch py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🔊</span> ฟังคำถาม
+                </button>
+                <button type="button" id="ori-btn-day" onclick="recordOrientation('day')" class="btn-touch py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🎙️</span> กดแล้วตอบ
+                </button>
+              </div>
+              <p id="ori-ans-day" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
+            </div>
+
+            <!-- 5. สถานที่ -->
+            <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">5. ตอนนี้อยู่ที่ไหน?</span>
+                <span id="ori-badge-place" class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-400">0 แต้ม</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="playOriQuestion('place')" class="btn-touch py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🔊</span> ฟังคำถาม
+                </button>
+                <button type="button" id="ori-btn-place" onclick="recordOrientation('place')" class="btn-touch py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🎙️</span> กดแล้วตอบ
+                </button>
+              </div>
+              <p id="ori-ans-place" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
+            </div>
+
+            <!-- 6. จังหวัด -->
+            <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">6. ตอนนี้อยู่จังหวัดอะไร?</span>
+                <span id="ori-badge-province" class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-400">0 แต้ม</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="playOriQuestion('province')" class="btn-touch py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🔊</span> ฟังคำถาม
+                </button>
+                <button type="button" id="ori-btn-province" onclick="recordOrientation('province')" class="btn-touch py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1">
+                  <span>🎙️</span> กดแล้วตอบ
+                </button>
+              </div>
+              <p id="ori-ans-province" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="flex gap-2 pt-2">
+          <button onclick="goToPage(6)" class="btn-touch w-1/3 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl">ย้อนกลับ</button>
+          <button onclick="processFinalEvaluation()" class="btn-touch w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm py-3 rounded-xl shadow-lg">
+            📊 คำนวณและสรุปผลตรวจ
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= หน้าสรุปผล (Result Screen) ================= -->
+      <div id="pageResult" class="moca-screen hidden space-y-4 text-center py-2">
+        <span id="resIcon" class="text-6xl">🟢</span>
+        <h2 id="resStatus" class="text-xl font-black text-slate-800">ปกติ (Normal)</h2>
+        
+        <div class="bg-slate-50 p-4 rounded-2xl text-left text-sm space-y-2.5 border">
+          <div class="flex justify-between"><span class="text-slate-500">ผู้รับการประเมิน:</span><strong id="resName" class="text-slate-800">-</strong></div>
+          <div class="flex justify-between"><span class="text-slate-500">คะแนนสุทธิ (MoCA):</span><strong id="resScore" class="text-sky-700 text-lg">0 / 30</strong></div>
+          <div class="flex justify-between text-xs text-slate-500"><span>แต้มปรับการศึกษา:</span><span id="resEduBonus">+0 คะแนน</span></div>
+          <div class="flex justify-between text-xs text-slate-500 border-t pt-2"><span>วันนัดประเมินซ้ำ:</span><strong id="resDueDate" class="text-slate-700">-</strong></div>
+        </div>
+
+        <button onclick="submitToBackend()" class="btn-touch w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-2xl shadow">
+          💾 บันทึกผลเข้าสู่ระบบส่วนกลาง
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // URL Web App จาก Google Apps Script (ลงท้ายด้วย /exec)
+    const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbzmLPDAkfxROJWWA2ciTvQVkSKbjQeDd2VxugUi5f6Jm1S0y4hG0SFTsACoU10huW5LJQ/exec";
+
+    // 1. ตัวแปรเก็บคะแนนรวม MoCA (รวม 30 คะแนน)
+    let assessmentScores = {
+      trail: 0, cube: 0, clockCircle: 0, clockNums: 0, clockHands: 0,
+      animal1: 0, animal2: 0, animal3: 0,
+      digitFwd: 0, digitBwd: 0, tapping: 0, serial7: 0,
+      sent1: 0, sent2: 0, fluency: 0, abstraction: 0,
+      delayedRecall: 0, orientation: 0
+    };
+
+    let finalPayload = {};
+
+    function calculateRawTotal() {
+      return Object.values(assessmentScores).reduce((a, b) => a + b, 0);
+    }
+
+    function updateLiveScoreDisplay() {
+      const total = calculateRawTotal();
+      const display = document.getElementById('liveScoreDisplay');
+      if (display) {
+        display.innerText = `${total} / 30`;
+      }
+    }
+
+    // 2. ฟังก์ชันสลับหน้าจอ (ปลอดภัย ไม่ crash)
+    function goToPage(pageNum) {
+      document.querySelectorAll('.moca-screen').forEach(p => p.classList.add('hidden'));
+      const targetPage = document.getElementById(`page${pageNum}`);
+      if (targetPage) {
+        targetPage.classList.remove('hidden');
+      }
+
+      const stepIndicator = document.getElementById('stepIndicator');
+      if (stepIndicator) {
+        stepIndicator.innerText = pageNum === 'Result' ? 'สรุปผลการประเมิน' : `หน้า ${pageNum} จาก 7`;
+      }
+      window.scrollTo(0, 0);
+
+      if (pageNum === 2 && typeof redrawCanvas === 'function') {
+        setTimeout(redrawCanvas, 50);
+      }
+    }
+
+    // 3. Trail Making Canvas
+    const trailTargets = [
+      { label: '1', x: 120, y: 120 },
+      { label: 'ก', x: 225, y: 40 },
+      { label: '2', x: 295, y: 105 },
+      { label: 'ข', x: 210, y: 100 },
+      { label: '3', x: 290, y: 195 },
+      { label: 'ค', x: 95, y: 220 },
+      { label: '4', x: 170, y: 165 },
+      { label: 'ง', x: 45, y: 155 },
+      { label: '5', x: 45, y: 95 },
+      { label: 'จ', x: 120, y: 40 }
+    ];
+
+    const canvas = document.getElementById('trailCanvas');
+    const ctx = canvas.getContext('2d');
+    const trailBadge = document.getElementById('trailBadge');
+
+    let isDrawing = false;
+    let currentTargetIndex = 0;
+    let userStrokes = [];
+    let currentStroke = [];
+
+    function redrawCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#0284c7';
+
+      const allStrokes = [...userStrokes];
+      if (currentStroke.length > 0) allStrokes.push(currentStroke);
+
+      allStrokes.forEach(stroke => {
+        if (stroke.length < 2) return;
+        ctx.beginPath();
+        ctx.moveTo(stroke[0].x, stroke[0].y);
+        for (let i = 1; i < stroke.length; i++) {
+          ctx.lineTo(stroke[i].x, stroke[i].y);
+        }
+        ctx.stroke();
+      });
+
+      trailTargets.forEach(target => {
+        ctx.beginPath();
+        ctx.arc(target.x, target.y, 14, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 2;
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = 'bold 12px Sarabun, sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(target.label, target.x, target.y);
+      });
+    }
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+    }
+
+    function startDraw(e) {
+      isDrawing = true;
+      const pos = getPos(e);
+      currentStroke = [pos];
+      checkHit(pos.x, pos.y);
+      redrawCanvas();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      if (e.cancelable) e.preventDefault();
+      const pos = getPos(e);
+      currentStroke.push(pos);
+      checkHit(pos.x, pos.y);
+      redrawCanvas();
+    }
+
+    function stopDraw() {
+      if (!isDrawing) return;
+      isDrawing = false;
+      if (currentStroke.length > 0) {
+        userStrokes.push(currentStroke);
+        currentStroke = [];
+      }
+    }
+
+    function checkHit(x, y) {
+      if (currentTargetIndex >= trailTargets.length) return;
+      const target = trailTargets[currentTargetIndex];
+      const dist = Math.hypot(x - target.x, y - target.y);
+
+      if (dist < 15) {
+        currentTargetIndex++;
+        if (currentTargetIndex === trailTargets.length) {
+          trailBadge.textContent = '1 / 1 แต้ม';
+          trailBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700 transition-colors';
+          assessmentScores.trail = 1;
+          updateLiveScoreDisplay();
+        }
+      }
+    }
+
+    function resetTrailCanvas() {
+      userStrokes = [];
+      currentStroke = [];
+      currentTargetIndex = 0;
+      trailBadge.textContent = '0 / 1 แต้ม';
+      trailBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors';
+      assessmentScores.trail = 0;
+      updateLiveScoreDisplay();
+      redrawCanvas();
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    window.addEventListener('touchend', stopDraw);
+    redrawCanvas();
+
+    // 4. Cube Canvas
+    const cubeCanvas = document.getElementById('cubeCanvas');
+    const cubeCtx = cubeCanvas.getContext('2d');
+    const cubeBadge = document.getElementById('cubeBadge');
+    const cubeHint = document.getElementById('cubeHint');
+    const cubeAnalysisBox = document.getElementById('cubeAnalysisBox');
+
+    let isCubeDrawing = false;
+    let cubeStrokes = [];
+    let currentCubeStroke = [];
+
+    function getCubePos(e) {
+      const rect = cubeCanvas.getBoundingClientRect();
+      const scaleX = cubeCanvas.width / rect.width;
+      const scaleY = cubeCanvas.height / rect.height;
+      let clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+      let clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+      return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+    }
+
+    function startCubeDraw(e) {
+      isCubeDrawing = true;
+      const pos = getCubePos(e);
+      currentCubeStroke = [pos];
+      cubeCtx.beginPath();
+      cubeCtx.moveTo(pos.x, pos.y);
+      cubeCtx.lineWidth = 4;
+      cubeCtx.lineCap = 'round';
+      cubeCtx.lineJoin = 'round';
+      cubeCtx.strokeStyle = '#000000';
+    }
+
+    function drawCube(e) {
+      if (!isCubeDrawing) return;
+      if (e.cancelable) e.preventDefault();
+      const pos = getCubePos(e);
+      currentCubeStroke.push(pos);
+      cubeCtx.lineTo(pos.x, pos.y);
+      cubeCtx.stroke();
+    }
+
+    function stopCubeDraw() {
+      if (!isCubeDrawing) return;
+      isCubeDrawing = false;
+      if (currentCubeStroke.length > 1) {
+        cubeStrokes.push(currentCubeStroke);
+        currentCubeStroke = [];
+        evaluateCubeDrawing();
+      }
+    }
+
+    function evaluateCubeDrawing() {
+      if (cubeStrokes.length === 0) return;
+      const imgData = cubeCtx.getImageData(0, 0, cubeCanvas.width, cubeCanvas.height);
+      const data = imgData.data;
+      let minX = cubeCanvas.width, maxX = 0, minY = cubeCanvas.height, maxY = 0, drawnPixels = 0;
+
+      for (let y = 0; y < cubeCanvas.height; y++) {
+        for (let x = 0; x < cubeCanvas.width; x++) {
+          const idx = (y * cubeCanvas.width + x) * 4;
+          if (data[idx + 3] > 60) {
+            drawnPixels++;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      const width = maxX - minX;
+      const height = maxY - minY;
+      const isSizeValid = width >= 50 && height >= 50;
+      const aspectRatio = width / (height || 1);
+      const isRatioValid = aspectRatio >= 0.65 && aspectRatio <= 1.55;
+      const isComplete = isSizeValid && isRatioValid && drawnPixels >= 250;
+
+      if (isComplete) {
+        cubeBadge.textContent = '1 / 1 แต้ม';
+        cubeBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700 transition-colors';
+        cubeHint.innerHTML = '✅ <strong class="text-emerald-700">ถูกต้อง (1 แต้ม):</strong> วาดลูกบาศก์ 3 มิติสมบูรณ์';
+        cubeAnalysisBox.className = 'bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center transition-all';
+        assessmentScores.cube = 1;
+      } else {
+        cubeBadge.textContent = '0 / 1 แต้ม';
+        cubeBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700 transition-colors';
+        cubeHint.innerHTML = '⚠️ <strong class="text-rose-600">ยังไม่ผ่าน (0 แต้ม):</strong> วาดให้ครบ 12 เส้นตามแบบ';
+        cubeAnalysisBox.className = 'bg-rose-50 border border-rose-200 rounded-xl p-2.5 text-center transition-all';
+        assessmentScores.cube = 0;
+      }
+      updateLiveScoreDisplay();
+    }
+
+    function clearCubeCanvas() {
+      cubeCtx.clearRect(0, 0, cubeCanvas.width, cubeCanvas.height);
+      cubeStrokes = [];
+      currentCubeStroke = [];
+      cubeBadge.textContent = '0 / 1 แต้ม';
+      cubeBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors';
+      cubeHint.textContent = '✏️ ใช้นิ้วหรือเมาส์วาดลูกบาศก์ 3 มิติลงในช่องขวา';
+      cubeAnalysisBox.className = 'bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center transition-all';
+      assessmentScores.cube = 0;
+      updateLiveScoreDisplay();
+    }
+
+    cubeCanvas.addEventListener('mousedown', startCubeDraw);
+    cubeCanvas.addEventListener('mousemove', drawCube);
+    window.addEventListener('mouseup', stopCubeDraw);
+    cubeCanvas.addEventListener('touchstart', startCubeDraw, { passive: false });
+    cubeCanvas.addEventListener('touchmove', drawCube, { passive: false });
+    window.addEventListener('touchend', stopCubeDraw);
+
+    // 5. Clock Canvas
+    const clockCanvas = document.getElementById('clockCanvas');
+    const clockCtx = clockCanvas.getContext('2d');
+    const clockBadge = document.getElementById('clockBadge');
+    const clockHint = document.getElementById('clockHint');
+    const clockAnalysisBox = document.getElementById('clockAnalysisBox');
+    const chkCircle = document.getElementById('chkCircle');
+    const chkNumbers = document.getElementById('chkNumbers');
+    const chkHands = document.getElementById('chkHands');
+
+    let isClockDrawing = false;
+    let clockStrokes = [];
+    let currentClockStroke = [];
+
+    function getClockPos(e) {
+      const rect = clockCanvas.getBoundingClientRect();
+      const scaleX = clockCanvas.width / rect.width;
+      const scaleY = clockCanvas.height / rect.height;
+      let clientX = e.clientX;
+      let clientY = e.clientY;
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      }
+      return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+    }
+
+    function startClockDraw(e) {
+      if (e.cancelable) e.preventDefault();
+      isClockDrawing = true;
+      const pos = getClockPos(e);
+      currentClockStroke = [pos];
+      clockCtx.lineWidth = 3;
+      clockCtx.lineCap = 'round';
+      clockCtx.lineJoin = 'round';
+      clockCtx.strokeStyle = '#000000';
+      clockCtx.beginPath();
+      clockCtx.moveTo(pos.x, pos.y);
+      clockCtx.lineTo(pos.x, pos.y);
+      clockCtx.stroke();
+    }
+
+    function drawClock(e) {
+      if (!isClockDrawing) return;
+      if (e.cancelable) e.preventDefault();
+      const pos = getClockPos(e);
+      currentClockStroke.push(pos);
+      clockCtx.lineTo(pos.x, pos.y);
+      clockCtx.stroke();
+    }
+
+    function stopClockDraw() {
+      if (!isClockDrawing) return;
+      isClockDrawing = false;
+      if (currentClockStroke.length > 0) {
+        clockStrokes.push(currentClockStroke);
+        currentClockStroke = [];
+        evaluateClockDrawing();
+      }
+    }
+
+    function evaluateClockDrawing() {
+      if (clockStrokes.length === 0) return;
+      const imgData = clockCtx.getImageData(0, 0, clockCanvas.width, clockCanvas.height);
+      const data = imgData.data;
+      let minX = clockCanvas.width, maxX = 0, minY = clockCanvas.height, maxY = 0, drawnPixels = 0;
+
+      for (let y = 0; y < clockCanvas.height; y++) {
+        for (let x = 0; x < clockCanvas.width; x++) {
+          const idx = (y * clockCanvas.width + x) * 4;
+          if (data[idx + 3] > 60) {
+            drawnPixels++;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      const width = maxX - minX;
+      const height = maxY - minY;
+      const isCircle = width >= 75 && height >= 75 && (width / (height || 1) >= 0.7 && width / (height || 1) <= 1.4);
+      const hasNumbers = drawnPixels >= 300 && clockStrokes.length >= 6;
+      const hasHands = drawnPixels >= 400 && clockStrokes.length >= 8;
+
+      assessmentScores.clockCircle = isCircle ? 1 : 0;
+      assessmentScores.clockNums = hasNumbers ? 1 : 0;
+      assessmentScores.clockHands = hasHands ? 1 : 0;
+
+      const score = assessmentScores.clockCircle + assessmentScores.clockNums + assessmentScores.clockHands;
+
+      updateStatus(chkCircle, isCircle, '⭕ วงกลม');
+      updateStatus(chkNumbers, hasNumbers, '🔢 ตัวเลข');
+      updateStatus(chkHands, hasHands, '⏰ เวลา 11:10');
+
+      clockBadge.textContent = `${score} / 3 แต้ม`;
+      if (score === 3) {
+        clockBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700 transition-colors';
+        clockHint.innerHTML = '✅ <strong class="text-emerald-700">สมบูรณ์ (3/3 แต้ม)</strong>';
+        clockAnalysisBox.className = 'bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 transition-all';
+      } else {
+        clockBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700 transition-colors';
+        clockHint.innerHTML = `⚠️ <strong class="text-amber-700">ได้ ${score}/3 แต้ม</strong>`;
+        clockAnalysisBox.className = 'bg-slate-50 border border-slate-200 rounded-xl p-2.5 transition-all';
+      }
+
+      updateLiveScoreDisplay();
+    }
+
+    function updateStatus(el, isValid, text) {
+      if (isValid) {
+        el.className = 'py-1 px-1 rounded bg-emerald-100 text-emerald-700 font-bold';
+        el.textContent = `${text} (1/1)`;
+      } else {
+        el.className = 'py-1 px-1 rounded bg-slate-100 text-slate-500 font-semibold';
+        el.textContent = `${text} (0/1)`;
+      }
+    }
+
+    function clearClockCanvas() {
+      clockCtx.clearRect(0, 0, clockCanvas.width, clockCanvas.height);
+      clockStrokes = [];
+      currentClockStroke = [];
+      clockBadge.textContent = '0 / 3 แต้ม';
+      clockBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors';
+      clockHint.textContent = '✏️ วาดวงกลมหน้าปัด ใส่ตัวเลข 1–12 และเข็มบอกเวลา 11:10 น.';
+      clockAnalysisBox.className = 'bg-slate-50 border border-slate-200 rounded-xl p-2.5 transition-all';
+      assessmentScores.clockCircle = 0;
+      assessmentScores.clockNums = 0;
+      assessmentScores.clockHands = 0;
+      updateStatus(chkCircle, false, '⭕ วงกลม');
+      updateStatus(chkNumbers, false, '🔢 ตัวเลข');
+      updateStatus(chkHands, false, '⏰ เวลา 11:10');
+      updateLiveScoreDisplay();
+    }
+
+    clockCanvas.addEventListener('mousedown', startClockDraw);
+    clockCanvas.addEventListener('mousemove', drawClock);
+    window.addEventListener('mouseup', stopClockDraw);
+    clockCanvas.addEventListener('touchstart', startClockDraw, { passive: false });
+    clockCanvas.addEventListener('touchmove', drawClock, { passive: false });
+    window.addEventListener('touchend', stopClockDraw);
+
+    // 6. Naming
+    function setDirect(key, val, btn) {
+      assessmentScores[key] = val;
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.score-btn').forEach(b => {
+        b.classList.remove('bg-sky-600', 'text-white', 'border-sky-600');
+        b.classList.add('bg-white', 'text-slate-700');
+      });
+      btn.classList.remove('bg-white', 'text-slate-700');
+      btn.classList.add('bg-sky-600', 'text-white', 'border-sky-600');
+
+      const itemBadge = document.getElementById(`badge-${key}`);
+      if (itemBadge) {
+        itemBadge.textContent = `${val} / 1 แต้ม`;
+        itemBadge.className = val > 0 
+          ? 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700 transition-colors'
+          : 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors';
+      }
+
+      const totalNaming = (assessmentScores.animal1 || 0) + (assessmentScores.animal2 || 0) + (assessmentScores.animal3 || 0);
+      const totalBadge = document.getElementById('namingTotalBadge');
+      if (totalBadge) {
+        totalBadge.textContent = `แต้ม ${totalNaming}/3 คะแนน`;
+      }
+      updateLiveScoreDisplay();
+    }
+
+    // 7. TTS Helper
+    function getThaiVoice() {
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices();
+      return voices.find(v => v.lang.includes('th') && v.name.includes('Google')) ||
+             voices.find(v => v.lang === 'th-TH' || v.lang === 'th_TH' || v.lang.startsWith('th')) ||
+             voices.find(v => v.name.toLowerCase().includes('thai')) || null;
+    }
+
+    // 8. Memory Registration
+    const memoryWordList = ["ใบหน้า", "ผ้าไหม", "วัด", "มะลิ", "สีแดง"];
+    let isSpeaking = false;
+
+    function resetWordHighlights() {
+      for (let i = 0; i < memoryWordList.length; i++) {
+        const el = document.getElementById(`word${i}`);
+        if (el) el.className = "word-chip px-3 py-1.5 rounded-2xl transition-all duration-300 text-sky-900 bg-transparent scale-100";
+      }
+    }
+
+    function highlightWord(index) {
+      resetWordHighlights();
+      const el = document.getElementById(`word${index}`);
+      if (el) el.className = "word-chip px-3.5 py-1.5 rounded-2xl transition-all duration-300 bg-amber-400 text-amber-950 font-black scale-110 shadow-md ring-4 ring-amber-200";
+    }
+
+    async function speakWordsSlowly() {
+      if (!('speechSynthesis' in window)) {
+        alert("คำศัพท์ที่ต้องจำคือ: ใบหน้า, ผ้าไหม, วัด, มะลิ, สีแดง");
+        return;
+      }
+      if (isSpeaking) return;
+
+      window.speechSynthesis.cancel();
+      isSpeaking = true;
+      const btn = document.getElementById('btnSpeak');
+      const icon = document.getElementById('speakIcon');
+      const text = document.getElementById('speakText');
+      btn.classList.replace('bg-amber-500', 'bg-slate-400');
+      btn.disabled = true;
+      icon.innerText = "⏳";
+      text.innerText = "กำลังอ่านคำศัพท์ทีละคำ...";
+
+      for (let i = 0; i < memoryWordList.length; i++) {
+        highlightWord(i);
+        await new Promise(resolve => {
+          const u = new SpeechSynthesisUtterance(memoryWordList[i]);
+          u.lang = "th-TH";
+          u.rate = 0.65;
+          const v = getThaiVoice();
+          if (v) u.voice = v;
+          u.onend = () => resolve();
+          u.onerror = () => resolve();
+          window.speechSynthesis.speak(u);
+        });
+        await new Promise(r => setTimeout(r, 900));
+      }
+
+      resetWordHighlights();
+      isSpeaking = false;
+      btn.classList.replace('bg-slate-400', 'bg-amber-500');
+      btn.disabled = false;
+      icon.innerText = "🔁";
+      text.innerText = "กดเพื่อฟังเสียงอ่านอีกรอบ";
+    }
+
+    // 9. Attention - Digits
+    const digitData = {
+      fwd: { sequence: ["2", "1", "8", "5", "4"], targetText: "21854" },
+      bwd: { sequence: ["7", "4", "2"], targetText: "247" }
+    };
+    let isPlayingDigit = false;
+
+    async function playDigitAudio(type) {
+      if (!('speechSynthesis' in window)) return;
+      if (isPlayingDigit) return;
+      window.speechSynthesis.cancel();
+      isPlayingDigit = true;
+
+      const btn = document.getElementById(type === 'fwd' ? 'btnPlayFwd' : 'btnPlayBwd');
+      const hint = document.getElementById(type === 'fwd' ? 'hintFwd' : 'hintBwd');
+      btn.disabled = true;
+      btn.classList.replace('bg-amber-500', 'bg-slate-400');
+      hint.innerHTML = '<span class="text-amber-600 font-bold">🎧 กำลังอ่านตัวเลข...</span>';
+
+      const seq = digitData[type].sequence;
+      for (let i = 0; i < seq.length; i++) {
+        await new Promise(resolve => {
+          const msg = new SpeechSynthesisUtterance(seq[i]);
+          msg.lang = "th-TH";
+          msg.rate = 0.65;
+          const v = getThaiVoice();
+          if (v) msg.voice = v;
+          msg.onend = () => resolve();
+          msg.onerror = () => resolve();
+          window.speechSynthesis.speak(msg);
+        });
+        await new Promise(r => setTimeout(r, 900));
+      }
+
+      isPlayingDigit = false;
+      btn.disabled = false;
+      btn.classList.replace('bg-slate-400', 'bg-amber-500');
+      hint.innerHTML = '<span class="text-sky-600 font-bold">👉 กดปุ่มไมโครโฟนเพื่อพูดคำตอบได้เลย</span>';
+    }
+
+    function extractDigitsFromSpeech(text) {
+      const thaiNumMap = { 'ศูนย์': '0', 'หนึ่ง': '1', 'เอ็ด': '1', 'สอง': '2', 'สาม': '3', 'สี่': '4', 'ห้า': '5', 'หก': '6', 'เจ็ด': '7', 'แปด': '8', 'เก้า': '9' };
+      let cleaned = text.toLowerCase();
+      for (const [w, d] of Object.entries(thaiNumMap)) {
+        cleaned = cleaned.split(w).join(d);
+      }
+      return cleaned.replace(/[^0-9]/g, '');
+    }
+
+    function startDigitListening(type) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        const inp = prompt(type === 'fwd' ? 'พิมพ์ทวนตัวเลขเดินหน้า:' : 'พิมพ์ทวนตัวเลขย้อนกลับ:');
+        if (inp !== null) processDigitAnswer(type, extractDigitsFromSpeech(inp));
+        return;
+      }
+
+      const rec = new SpeechRecognition();
+      rec.lang = 'th-TH';
+      rec.interimResults = false;
+      const btnMic = document.getElementById(type === 'fwd' ? 'btnMicFwd' : 'btnMicBwd');
+      const micText = document.getElementById(type === 'fwd' ? 'micTextFwd' : 'micTextBwd');
+      btnMic.classList.replace('bg-sky-600', 'bg-rose-600');
+      micText.innerText = "กำลังฟัง...";
+
+      rec.onresult = (e) => {
+        const t = e.results[0][0].transcript;
+        processDigitAnswer(type, extractDigitsFromSpeech(t));
+      };
+      rec.onerror = () => { resetMicUI(type); };
+      rec.onend = () => { resetMicUI(type); };
+      rec.start();
+    }
+
+    function resetMicUI(type) {
+      const btnMic = document.getElementById(type === 'fwd' ? 'btnMicFwd' : 'btnMicBwd');
+      const micText = document.getElementById(type === 'fwd' ? 'micTextFwd' : 'micTextBwd');
+      if (btnMic) btnMic.classList.replace('bg-rose-600', 'bg-sky-600');
+      if (micText) micText.innerText = type === 'fwd' ? "กดแล้วพูดทวน" : "กดแล้วพูดย้อนกลับ";
+    }
+
+    function processDigitAnswer(type, digits) {
+      const isCorrect = (digits === digitData[type].targetText);
+      const hint = document.getElementById(type === 'fwd' ? 'hintFwd' : 'hintBwd');
+      const badge = document.getElementById(type === 'fwd' ? 'badgeFwd' : 'badgeBwd');
+
+      if (type === 'fwd') assessmentScores.digitFwd = isCorrect ? 1 : 0;
+      else assessmentScores.digitBwd = isCorrect ? 1 : 0;
+
+      if (isCorrect) {
+        badge.innerText = "1 แต้ม (ถูก)";
+        badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700";
+        hint.innerHTML = `<span class="text-emerald-600 font-bold">🎉 พูดถูกต้อง (ได้ 1 คะแนน)</span>`;
+      } else {
+        badge.innerText = "0 แต้ม";
+        badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-700";
+        hint.innerHTML = `<span class="text-rose-600 font-medium">❌ ไม่ถูกต้อง (ได้ 0 คะแนน)</span>`;
+      }
+
+      const total = assessmentScores.digitFwd + assessmentScores.digitBwd;
+      document.getElementById('digitTotalBadge').innerText = `${total} / 2 แต้ม`;
+      updateLiveScoreDisplay();
+    }
+
+    // 10. Tapping (เคาะตามจังหวะ)
+    const DIGIT_SEQUENCE = "52139411806215194511141905112".split("");
+    let currentSequenceIndex = -1, tapCountInCurrentDigit = 0, isPlayingTap = false;
+    let statsCorrect = 0, statsFalseAlarm = 0, statsMissed = 0;
+
+    function startTappingSequence() {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      isPlayingTap = true;
+      currentSequenceIndex = -1;
+      tapCountInCurrentDigit = 0;
+      statsCorrect = 0; statsFalseAlarm = 0; statsMissed = 0;
+      updateTapUIStats();
+
+      document.getElementById('btn-start-tap').disabled = true;
+      document.getElementById('btn-tap-target').disabled = false;
+      const statusLabel = document.getElementById('tap-status');
+      statusLabel.innerText = "กำลังอ่าน...";
+      statusLabel.className = "text-[11px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-lg border border-amber-200";
+
+      playTapStep(0);
+    }
+
+    function playTapStep(index) {
+      if (!isPlayingTap) return;
+      if (index > 0) finalizeTapTurn(index - 1);
+      if (index >= DIGIT_SEQUENCE.length) { finishTapSequence(); return; }
+
+      currentSequenceIndex = index;
+      tapCountInCurrentDigit = 0;
+
+      const u = new SpeechSynthesisUtterance(DIGIT_SEQUENCE[index]);
+      u.lang = 'th-TH';
+      u.rate = 1.3;
+      const v = getThaiVoice();
+      if (v) u.voice = v;
+      u.onend = () => { if (isPlayingTap) setTimeout(() => playTapStep(index + 1), 200); };
+      u.onerror = () => { if (isPlayingTap) setTimeout(() => playTapStep(index + 1), 300); };
+      window.speechSynthesis.speak(u);
+    }
+
+    function finalizeTapTurn(idx) {
+      const digit = DIGIT_SEQUENCE[idx];
+      if (digit === "1") {
+        if (tapCountInCurrentDigit === 0) statsMissed++;
+        else {
+          statsCorrect++;
+          if (tapCountInCurrentDigit > 1) statsFalseAlarm += (tapCountInCurrentDigit - 1);
+        }
+      } else {
+        if (tapCountInCurrentDigit > 0) statsFalseAlarm += tapCountInCurrentDigit;
+      }
+      updateTapUIStats();
+    }
+
+    function recordUserTap() {
+      if (currentSequenceIndex < 0 || !isPlayingTap) return;
+      tapCountInCurrentDigit++;
+      const btn = document.getElementById('btn-tap-target');
+      btn.classList.add('bg-sky-900', 'scale-95');
+      setTimeout(() => btn.classList.remove('bg-sky-900', 'scale-95'), 80);
+    }
+
+    function updateTapUIStats() {
+      document.getElementById('tap-correct').innerText = statsCorrect;
+      document.getElementById('tap-false').innerText = statsFalseAlarm;
+      document.getElementById('tap-missed').innerText = statsMissed;
+    }
+
+    function finishTapSequence() {
+      isPlayingTap = false;
+      document.getElementById('btn-start-tap').disabled = false;
+      document.getElementById('btn-tap-target').disabled = true;
+      const statusLabel = document.getElementById('tap-status');
+      statusLabel.innerText = "เสร็จสิ้น";
+      statusLabel.className = "text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-lg border border-emerald-200";
+
+      const totalErrors = statsFalseAlarm + statsMissed;
+      const passBox = document.getElementById('tap-eval-pass');
+      const failBox = document.getElementById('tap-eval-fail');
+      const badgeTap = document.getElementById('badgeTap');
+
+      if (totalErrors <= 1) {
+        assessmentScores.tapping = 1;
+        if (passBox) passBox.className = 'py-2 px-1 rounded-xl border border-emerald-400 bg-emerald-50 text-emerald-800 font-extrabold text-xs text-center shadow-sm';
+        if (failBox) failBox.className = 'py-2 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-300 text-[11px] font-normal text-center';
+        if (badgeTap) { badgeTap.innerText = '1 แต้ม (ผ่าน)'; badgeTap.className = 'text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700'; }
+      } else {
+        assessmentScores.tapping = 0;
+        if (passBox) passBox.className = 'py-2 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-300 text-[11px] font-normal text-center';
+        if (failBox) failBox.className = 'py-2 px-1 rounded-xl border border-rose-400 bg-rose-50 text-rose-800 font-extrabold text-xs text-center shadow-sm';
+        if (badgeTap) { badgeTap.innerText = '0 แต้ม'; badgeTap.className = 'text-[11px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-700'; }
+      }
+      updateLiveScoreDisplay();
+    }
+
+    // 11. Serial 7s
+    const standardAnswers = [93, 86, 79, 72, 65];
+    let userResults = [null, null, null, null, null];
+
+    function handleEnter(event, index) {
+      if (event.key === 'Enter') submitStep(index);
+    }
+
+    function submitStep(currentIndex) {
+      const currentInput = document.getElementById(`step${currentIndex}`);
+      const currentBadge = document.getElementById(`badge-step-${currentIndex}`);
+      const currentBtn = document.getElementById(`btn-submit-${currentIndex}`);
+      const rawVal = currentInput.value.trim();
+      if (rawVal === '') { alert('กรุณากรอกตัวเลขคำตอบ'); return; }
+
+      const userVal = parseInt(rawVal, 10);
+      const isCorrect = (userVal === standardAnswers[currentIndex - 1]);
+      userResults[currentIndex - 1] = isCorrect;
+
+      currentInput.disabled = true;
+      currentBtn.disabled = true;
+      currentBtn.classList.add('hidden');
+
+      if (isCorrect) {
+        currentInput.className = 'w-24 text-center border-2 border-emerald-400 rounded-xl py-1.5 px-2 text-base font-black bg-emerald-50 text-emerald-800 cursor-not-allowed';
+        currentBadge.textContent = 'ถูก (1 แต้ม)';
+        currentBadge.className = 'text-xs px-2 py-0.5 rounded-lg font-bold bg-emerald-100 text-emerald-700';
+      } else {
+        currentInput.className = 'w-24 text-center border-2 border-rose-300 rounded-xl py-1.5 px-2 text-base font-black bg-rose-50 text-rose-800 cursor-not-allowed';
+        currentBadge.textContent = 'ผิด (0 แต้ม)';
+        currentBadge.className = 'text-xs px-2 py-0.5 rounded-lg font-bold bg-rose-100 text-rose-700';
+      }
+
+      if (currentIndex < 5) {
+        const nextIdx = currentIndex + 1;
+        const nextBox = document.getElementById(`box-step-${nextIdx}`);
+        const nextLabel = document.getElementById(`label-step-${nextIdx}`);
+        const nextInput = document.getElementById(`step${nextIdx}`);
+        const nextBtn = document.getElementById(`btn-submit-${nextIdx}`);
+
+        nextLabel.textContent = `${standardAnswers[currentIndex - 1]} - 7`;
+        nextLabel.className = 'text-sm sm:text-base font-black text-sky-800 bg-sky-100 px-2.5 py-1 rounded-xl border border-sky-200 min-w-[90px] text-center';
+        nextBox.classList.remove('bg-slate-100', 'opacity-60');
+        nextBox.classList.add('bg-white');
+        nextInput.disabled = false;
+        nextInput.classList.remove('bg-slate-100');
+        nextBtn.disabled = false;
+        nextBtn.className = 'btn-touch px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-black shadow';
+        nextInput.focus();
+      }
+
+      calculateFinalSerialScore();
+    }
+
+    function calculateFinalSerialScore() {
+      const correctCount = userResults.filter(res => res === true).length;
+      let finalScore = 0;
+      if (correctCount >= 4) finalScore = 3;
+      else if (correctCount >= 2) finalScore = 2;
+      else if (correctCount === 1) finalScore = 1;
+
+      assessmentScores.serial7 = finalScore;
+      const totalBadge = document.getElementById('serialTotalBadge');
+      if (totalBadge) {
+        totalBadge.textContent = `แต้ม ${finalScore}/3 คะแนน`;
+        totalBadge.className = finalScore > 0 
+          ? 'text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1 rounded-2xl transition-colors shadow-sm'
+          : 'text-xs font-black text-slate-600 bg-slate-200 px-3 py-1 rounded-2xl border border-slate-300 transition-colors shadow-sm';
+      }
+      updateLiveScoreDisplay();
+    }
+
+    // 12. Sentences (ทวนประโยคยาว)
+    const sentenceTargets = {
+      1: "ฉันรู้ว่าจอมเป็นคนเดียวที่มาช่วยงานในวันนี้",
+      2: "แมวมักซ่อนตัวอยู่หลังเก้าอี้เมื่อมีหมาอยู่ในห้อง"
+    };
+
+    function playSentence(index) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(sentenceTargets[index]);
+      u.lang = 'th-TH';
+      u.rate = 0.5;
+      const v = getThaiVoice();
+      if (v) u.voice = v;
+
+      const playBtn = document.getElementById(`btn-play-${index}`);
+      const recordBtn = document.getElementById(`btn-record-${index}`);
+      playBtn.disabled = true;
+      playBtn.innerHTML = '⏳ กำลังอ่าน...';
+
+      u.onend = () => {
+        playBtn.disabled = false;
+        playBtn.innerHTML = '🔊 ฟังอีกครั้ง';
+        recordBtn.disabled = false;
+        recordBtn.classList.remove('bg-slate-200', 'text-slate-400', 'cursor-not-allowed');
+        recordBtn.classList.add('bg-emerald-600', 'text-white');
+      };
+      window.speechSynthesis.speak(u);
+    }
+
+    function toggleRecordSentence(index) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+      const rec = new SpeechRecognition();
+      rec.lang = 'th-TH';
+      const recordBtn = document.getElementById(`btn-record-${index}`);
+      const transcriptElem = document.getElementById(`transcript-${index}`);
+      recordBtn.innerHTML = '🔴 กำลังฟัง...';
+
+      rec.onresult = (e) => {
+        const spoken = e.results[0][0].transcript;
+        transcriptElem.textContent = spoken;
+        const cleanSpoken = spoken.replace(/\s+/g, '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+        const cleanTarget = sentenceTargets[index].replace(/\s+/g, '');
+        const isCorrect = (cleanSpoken === cleanTarget);
+        const score = isCorrect ? 1 : 0;
+
+        if (index === 1) assessmentScores.sent1 = score;
+        if (index === 2) assessmentScores.sent2 = score;
+
+        const badge = document.getElementById(`badge-sent-${index}`);
+        badge.textContent = `${score} / 1 แต้ม`;
+        badge.className = isCorrect 
+          ? 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700'
+          : 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700';
+
+        const totalSent = (assessmentScores.sent1 || 0) + (assessmentScores.sent2 || 0);
+        document.getElementById('sentenceTotalBadge').textContent = `แต้ม ${totalSent}/2 คะแนน`;
+        updateLiveScoreDisplay();
+      };
+      rec.onend = () => { recordBtn.innerHTML = '🎙️ พูดอีกครั้ง'; };
+      rec.start();
+    }
+
+    // 13. Verbal Fluency (ตัวอักษร ก)
+    let fluencyTimerInterval = null, fluencyTimeLeft = 60, fluencyRec = null, isFluencyRunning = false;
+    let recordedWordsSet = new Set(), processedWordsHistory = new Set();
+
+    function startFluencyTest() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+
+      clearInterval(fluencyTimerInterval);
+      fluencyTimeLeft = 60;
+      recordedWordsSet.clear();
+      processedWordsHistory.clear();
+      isFluencyRunning = true;
+
+      document.getElementById('fluencyTimer').innerText = fluencyTimeLeft;
+      document.getElementById('validWordCount').innerText = "0";
+      document.getElementById('wordChipsContainer').innerHTML = '';
+      document.getElementById('liveHearingStatus').innerHTML = '<span class="text-rose-600 font-bold animate-pulse">🔴 กำลังฟัง...</span>';
+
+      const startBtn = document.getElementById('btnStartFluency');
+      startBtn.disabled = true;
+      startBtn.classList.replace('bg-emerald-600', 'bg-slate-400');
+
+      fluencyRec = new SpeechRecognition();
+      fluencyRec.lang = 'th-TH';
+      fluencyRec.continuous = true;
+      fluencyRec.interimResults = true;
+
+      fluencyRec.onresult = (e) => {
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const text = e.results[i][0].transcript;
+          const words = text.split(/[\s,.\-_/]+/).filter(w => w.trim().length > 0);
+          words.forEach(w => {
+            const clean = w.replace(/[^\u0E00-\u0E7F]/g, '').trim();
+            if (!clean || processedWordsHistory.has(clean)) return;
+            processedWordsHistory.add(clean);
+            const startsWithK = /^([เแโใไ]?ก)/.test(clean);
+            const isDup = recordedWordsSet.has(clean);
+
+            const container = document.getElementById('wordChipsContainer');
+            const placeholder = document.getElementById('emptyWordPlaceholder');
+            if (placeholder) placeholder.remove();
+
+            const chip = document.createElement('span');
+            if (startsWithK && !isDup) {
+              chip.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+              chip.innerHTML = `✓ ${clean}`;
+              recordedWordsSet.add(clean);
+            } else if (!startsWithK) {
+              chip.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-rose-100 text-rose-700 border border-rose-300 line-through opacity-80';
+              chip.innerHTML = `✗ ${clean}`;
+            } else {
+              chip.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-amber-100 text-amber-800 border border-amber-300 line-through opacity-75';
+              chip.innerHTML = `⚠️ ${clean} (ซ้ำ)`;
+            }
+            container.appendChild(chip);
+            document.getElementById('validWordCount').innerText = recordedWordsSet.size;
+          });
+        }
+      };
+
+      fluencyRec.onend = () => { if (isFluencyRunning && fluencyTimeLeft > 0) try { fluencyRec.start(); } catch(e){} };
+      fluencyRec.start();
+
+      fluencyTimerInterval = setInterval(() => {
+        fluencyTimeLeft--;
+        document.getElementById('fluencyTimer').innerText = fluencyTimeLeft;
+        if (fluencyTimeLeft <= 0) {
+          clearInterval(fluencyTimerInterval);
+          isFluencyRunning = false;
+          try { fluencyRec.stop(); } catch(e){}
+          startBtn.disabled = false;
+          startBtn.classList.replace('bg-slate-400', 'bg-emerald-600');
+          document.getElementById('liveHearingStatus').innerHTML = '<span class="text-slate-600 font-bold">✓ หมดเวลา</span>';
+
+          const score = recordedWordsSet.size >= 11 ? 1 : 0;
+          assessmentScores.fluency = score;
+          const badge = document.getElementById('fluencyTotalBadge');
+          if (badge) {
+            badge.textContent = `แต้ม ${score}/1 คะแนน`;
+            badge.className = score === 1
+              ? 'text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full'
+              : 'text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 px-2.5 py-1 rounded-full';
+          }
+          updateLiveScoreDisplay();
+        }
+      }, 1000);
+    }
+
+    // 14. Abstraction Voice
+    const abstractKeywords = {
+      1: ["ยานพาหนะ", "พาหนะ", "เดินทาง", "ขนส่ง", "คมนาคม", "เครื่องสัญจร", "เครื่องขับขี่", "โดยสาร", "รถ"],
+      2: ["เครื่องมือวัด", "อุปกรณ์วัด", "เครื่องวัด", "การวัด", "ใช้วัด", "ตวงวัด", "วัดค่า", "บอกปริมาณ", "มาตราวัด", "วัด"]
+    };
+    let absVoiceScores = { 1: 0, 2: 0 };
+
+    function startAbstractionVoice(itemNum) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        const inp = prompt('บอกความเหมือน:');
+        if (inp) evaluateAbstractionAnswer(itemNum, inp);
+        return;
+      }
+      const rec = new SpeechRecognition();
+      rec.lang = 'th-TH';
+      const micBtn = document.getElementById(`btn-abs-mic-${itemNum}`);
+      const transcriptElem = document.getElementById(`transcript-abs-${itemNum}`);
+      if (micBtn) micBtn.classList.replace('bg-sky-600', 'bg-rose-600');
+
+      rec.onresult = (e) => {
+        const spoken = e.results[0][0].transcript.trim();
+        if (transcriptElem) transcriptElem.innerText = `"${spoken}"`;
+        evaluateAbstractionAnswer(itemNum, spoken);
+      };
+      rec.onend = () => { if (micBtn) micBtn.classList.replace('bg-rose-600', 'bg-sky-600'); };
+      rec.start();
+    }
+
+    function evaluateAbstractionAnswer(itemNum, spokenText) {
+      const isCorrect = abstractKeywords[itemNum].some(kw => spokenText.includes(kw));
+      const score = isCorrect ? 1 : 0;
+      absVoiceScores[itemNum] = score;
+
+      const badgeElem = document.getElementById(`badge-abs-${itemNum}`);
+      if (badgeElem) {
+        badgeElem.textContent = `${score} / 1 แต้ม`;
+        badgeElem.className = isCorrect ? 'text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700' : 'text-xs px-2 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700';
+      }
+
+      const solutionBox = document.getElementById(`solution-box-${itemNum}`);
+      const solutionStatus = document.getElementById(`solution-status-${itemNum}`);
+      if (solutionBox && solutionStatus) {
+        solutionBox.classList.remove('hidden');
+        solutionBox.className = isCorrect ? 'p-2 rounded-lg border border-emerald-300 bg-emerald-50 text-xs space-y-1' : 'p-2 rounded-lg border border-rose-300 bg-rose-50 text-xs space-y-1';
+        solutionStatus.innerHTML = isCorrect ? '<span class="text-emerald-700 font-bold">✓ ถูกต้อง (1 แต้ม)</span>' : '<span class="text-rose-700 font-bold">✗ ยังไม่ตรงเกณฑ์ (0 แต้ม)</span>';
+      }
+
+      assessmentScores.abstraction = (absVoiceScores[1] || 0) + (absVoiceScores[2] || 0);
+      document.getElementById('abstractionTotalBadge').textContent = `แต้ม ${assessmentScores.abstraction}/2 คะแนน`;
+      updateLiveScoreDisplay();
+    }
+
+    // 15. Delayed Recall Voice Test (ก. ทวนคำศัพท์ 5 คำ - ระบบ Longest-Match + คำพูดต่อเนื่อง)
+    const targetMemoryMap = {
+      "ใบหน้า": ["ใบหน้า", "หน้า"],
+      "ผ้าไหม": ["ผ้าไหม", "ผ้าไม"],
+      "วัด": ["วัด", "หวัด", "วัตร"],
+      "มะลิ": ["ดอกมะลิ", "มะลิ", "มะลี"],
+      "สีแดง": ["สีแดง", "แดง"]
+    };
+
+    let recallTimerInterval = null;
+    let recallTimeLeft = 60;
+    let recallRec = null;
+    let isRecallRunning = false;
+    let recalledCorrectSet = new Set();
+    let recognizedSpokenList = [];
+
+    function startRecallVoiceTest() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        const manualInput = prompt("พิมพ์คำศัพท์ 5 คำที่จำได้ (คั่นด้วยช่องว่าง):");
+        if (manualInput) {
+          processRecallSpokenStream(manualInput);
+          stopRecallVoiceTest();
+        }
+        return;
+      }
+
+      // รีเซ็ตค่าเริ่มต้น
+      clearInterval(recallTimerInterval);
+      recallTimeLeft = 60;
+      recalledCorrectSet.clear();
+      recognizedSpokenList = [];
+      isRecallRunning = true;
+
+      document.getElementById('recallTimer').innerText = recallTimeLeft;
+      document.getElementById('validRecallCount').innerText = "0";
+      document.getElementById('recallChipsContainer').innerHTML = '';
+      document.getElementById('recallHearingStatus').innerHTML = '<span class="text-rose-600 font-bold animate-pulse">🔴 กำลังฟังเสียงพูด... (พูดต่อเนื่องได้เลย)</span>';
+
+      const startBtn = document.getElementById('btnStartRecall');
+      const btnText = document.getElementById('recallBtnText');
+      startBtn.disabled = true;
+      startBtn.classList.replace('bg-emerald-600', 'bg-slate-400');
+      btnText.innerText = "กำลังฟัง...";
+
+      recallRec = new SpeechRecognition();
+      recallRec.lang = 'th-TH';
+      recallRec.continuous = true;
+      recallRec.interimResults = true;
+
+      recallRec.onresult = (e) => {
+        let fullTranscript = '';
+        for (let i = 0; i < e.results.length; i++) {
+          fullTranscript += e.results[i][0].transcript + ' ';
+        }
+        processRecallSpokenStream(fullTranscript);
+      };
+
+      recallRec.onerror = (event) => {
+        console.warn('Speech recognition error:', event.error);
+      };
+
+      recallRec.onend = () => {
+        if (isRecallRunning && recallTimeLeft > 0) {
+          try { recallRec.start(); } catch(err) {}
+        }
+      };
+
+      recallRec.start();
+
+      // จับเวลาถอยหลัง 60 วินาที
+      recallTimerInterval = setInterval(() => {
+        recallTimeLeft--;
+        document.getElementById('recallTimer').innerText = recallTimeLeft;
+        if (recallTimeLeft <= 0) {
+          clearInterval(recallTimerInterval);
+          stopRecallVoiceTest();
+        }
+      }, 1000);
+    }
+
+    // ระบบสแกนคำแบบเรียงลำดับความยาว (Longest First) ป้องกันการจับเศษคำสั้น
+    function processRecallSpokenStream(rawStream) {
+      if (!rawStream || !rawStream.trim()) return;
+
+      const container = document.getElementById('recallChipsContainer');
+      const placeholder = document.getElementById('emptyRecallPlaceholder');
+      if (placeholder) placeholder.remove();
+
+      // ทำความสะอาดข้อความคงช่องว่างไว้สำหรับการแบ่งท่อนเสียง
+      const cleanSpoken = rawStream.replace(/[^\u0E00-\u0E7F\s]/g, '');
+
+      // 1. เรียงลำดับคำค้นหาตามความยาวจากมากไปน้อย (ป้องกัน "ใบ" แย่ง "ใบหน้า")
+      const searchEntries = [];
+      Object.keys(targetMemoryMap).forEach(standardWord => {
+        targetMemoryMap[standardWord].forEach(alias => {
+          searchEntries.push({ standardWord, alias, length: alias.length });
+        });
+      });
+      searchEntries.sort((a, b) => b.length - a.length);
+
+      // 2. สแกนหาคำที่สมบูรณ์ที่สุด
+      searchEntries.forEach(({ standardWord, alias }) => {
+        if (cleanSpoken.includes(alias) && !recalledCorrectSet.has(standardWord)) {
+          recalledCorrectSet.add(standardWord);
+
+          // สร้าง Chip สีเขียวเฉพาะคำหลักมาตรฐาน 5 คำ
+          const chip = document.createElement('span');
+          chip.className = 'inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs sm:text-sm font-black bg-emerald-100 text-emerald-800 border-2 border-emerald-400 shadow-sm animate-pulse';
+          chip.innerHTML = `✓ ${standardWord}`;
+          container.appendChild(chip);
+        }
+      });
+
+      // 3. อัปเดตคะแนนสด
+      const score = recalledCorrectSet.size;
+      document.getElementById('validRecallCount').innerText = score;
+      assessmentScores.delayedRecall = score;
+
+      const badge = document.getElementById('recallTotalBadge');
+      if (badge) {
+        badge.textContent = `แต้ม ${score}/5 คะแนน`;
+        badge.className = score > 0 
+          ? 'text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full'
+          : 'text-xs font-bold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full border border-slate-300';
+      }
+
+      updateLiveScoreDisplay();
+    }
+
+    function stopRecallVoiceTest() {
+      clearInterval(recallTimerInterval);
+      isRecallRunning = false;
+      if (recallRec) {
+        try { recallRec.stop(); } catch(e) {}
+      }
+
+      const startBtn = document.getElementById('btnStartRecall');
+      const btnText = document.getElementById('recallBtnText');
+      startBtn.disabled = false;
+      startBtn.classList.replace('bg-slate-400', 'bg-emerald-600');
+      btnText.innerText = "🔁 พูดใหม่อีกรอบ";
+
+      document.getElementById('recallHearingStatus').innerHTML = '<span class="text-slate-600 font-bold">✓ สิ้นสุดเวลา (ตัดไมค์แล้ว)</span>';
+
+      const finalScore = recalledCorrectSet.size;
+      assessmentScores.delayedRecall = finalScore;
+
+      const summary = document.getElementById('recallSummary');
+      if (summary) {
+        summary.innerHTML = `ทวนได้ถูกต้อง <b class="text-slate-800">${finalScore}/5 คำ</b> (ได้ <b class="text-sky-600 font-bold">${finalScore} คะแนน</b>)`;
+      }
+
+      updateLiveScoreDisplay();
+    }
+
+// ================= 16. Orientation Logic (ความเร็วเสียงคำถาม 0.56) =================
+    const oriQuestions = {
+      date: "วันนี้ วันที่เท่าไหร่คะ",
+      month: "ตอนนี้ เดือนอะไรคะ",
+      year: "ปีนี้ ปี พุทธศักราช อะไรคะ",
+      day: "วันนี้ วันอะไรคะ",
+      place: "ตอนนี้ คุณตาคุณยาย อยู่ที่ไหนคะ",
+      province: "ตอนนี้ อยู่จังหวัดอะไรคะ"
+    };
+
+    const oriScores = { date: 0, month: 0, year: 0, day: 0, place: 0, province: 0 };
+
+    const thaiDays = [
+      ["อาทิตย์", "วันอาทิตย์"],
+      ["จันทร์", "วันจันทร์"],
+      ["อังคาร", "วันอังคาร"],
+      ["พุธ", "วันพุธ"],
+      ["พฤหัส", "วันพฤหัส", "พฤหัสบดี", "วันพฤหัสบดี"],
+      ["ศุกร์", "วันศุกร์"],
+      ["เสาร์", "วันเสาร์"]
+    ];
+
+    const thaiMonths = [
+      ["มกรา", "มกราคม"],
+      ["กุมภา", "กุมภาพันธ์"],
+      ["มีนา", "มีนาคม"],
+      ["เมษา", "เมษายน"],
+      ["พฤษภา", "พฤษภาคม"],
+      ["มิถุนา", "มิถุนายน"],
+      ["กรกฎา", "กรกฎาคม"],
+      ["สิงหา", "สิงหาคม"],
+      ["กันยา", "กันยายน"],
+      ["ตุลา", "ตุลาคม"],
+      ["พฤศจิกา", "พฤศจิกายน"],
+      ["ธันวา", "ธันวาคม"]
+    ];
+
+    // ฟังก์ชันอ่านคำถามด้วยความเร็ว 0.56
+    function playOriQuestion(type) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      
+      const questionText = oriQuestions[type] || "";
+      const u = new SpeechSynthesisUtterance(questionText);
+      u.lang = 'th-TH';
+      u.rate = 0.56; // 👈 ปรับความเร็วในการพูดที่ 0.56
+      
+      const v = getThaiVoice();
+      if (v) u.voice = v;
+      
+      window.speechSynthesis.speak(u);
+    }
+
+    function recordOrientation(type) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        const manual = prompt('พิมพ์คำตอบ:');
+        if (manual) evaluateOrientation(type, manual.trim());
+        return;
+      }
+
+      const rec = new SpeechRecognition();
+      rec.lang = 'th-TH';
+      const btn = document.getElementById(`ori-btn-${type}`);
+      if (btn) {
+        btn.classList.replace('bg-sky-600', 'bg-rose-600');
+        btn.innerHTML = '🔴 กำลังฟัง...';
+      }
+
+      rec.onresult = (e) => {
+        const spoken = e.results[0][0].transcript.trim();
+        evaluateOrientation(type, spoken);
+      };
+
+      rec.onerror = () => { resetOriBtn(type); };
+      rec.onend = () => { resetOriBtn(type); };
+      rec.start();
+    }
+
+    function resetOriBtn(type) {
+      const btn = document.getElementById(`ori-btn-${type}`);
+      if (btn) {
+        btn.classList.replace('bg-rose-600', 'bg-sky-600');
+        btn.innerHTML = '<span>🎙️</span> กดแล้วตอบ';
+      }
+    }
+
+    function evaluateOrientation(type, spoken) {
+      const now = new Date();
+      const clean = spoken.replace(/\s+/g, '');
+      const digitsOnly = extractDigitsFromSpeech(spoken);
+      let isCorrect = false;
+
+      if (type === 'date') {
+        const curDate = now.getDate();
+        isCorrect = (digitsOnly === curDate.toString() || clean.includes(curDate.toString()));
+      } 
+      else if (type === 'month') {
+        const curMonthIdx = now.getMonth();
+        const validMonths = thaiMonths[curMonthIdx];
+        isCorrect = validMonths.some(m => clean.includes(m)) || digitsOnly === (curMonthIdx + 1).toString();
+      } 
+      else if (type === 'year') {
+        const curYearBE = (now.getFullYear() + 543).toString();
+        const shortBE = curYearBE.slice(-2);
+        isCorrect = (digitsOnly === curYearBE || digitsOnly === shortBE || clean.includes(curYearBE) || clean.includes(shortBE));
+      } 
+      else if (type === 'day') {
+        const curDayIdx = now.getDay();
+        const validDays = thaiDays[curDayIdx];
+        isCorrect = validDays.some(d => clean.includes(d));
+      } 
+      else if (type === 'place') {
+        const invalidAnswers = ["ไม่รู้", "จำไม่ได้", "ลืม", "ไม่ทราบ", "ไม่มี"];
+        const isRefusal = invalidAnswers.some(w => clean.includes(w));
+        isCorrect = clean.length >= 2 && !isRefusal;
+      } 
+      else if (type === 'province') {
+        isCorrect = clean.includes("ชุมพร") || clean.includes("จุมพร");
+      }
+
+      const score = isCorrect ? 1 : 0;
+      oriScores[type] = score;
+
+      const ansElem = document.getElementById(`ori-ans-${type}`);
+      const badgeElem = document.getElementById(`ori-badge-${type}`);
+
+      if (ansElem) {
+        ansElem.innerHTML = `พูดว่า: <b class="${isCorrect ? 'text-emerald-700 font-bold' : 'text-slate-700'}">"${spoken}"</b>`;
+      }
+      if (badgeElem) {
+        badgeElem.textContent = `${score} แต้ม`;
+        badgeElem.className = isCorrect 
+          ? 'text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-700' 
+          : 'text-[10px] px-2 py-0.5 rounded-md font-bold bg-rose-100 text-rose-700';
+      }
+
+      const totalOri = Object.values(oriScores).reduce((a, b) => a + b, 0);
+      assessmentScores.orientation = totalOri;
+
+      const totalBadge = document.getElementById('orientationTotalBadge');
+      if (totalBadge) {
+        totalBadge.textContent = `แต้ม ${totalOri}/6 คะแนน`;
+        totalBadge.className = totalOri > 0 
+          ? 'text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full' 
+          : 'text-xs font-bold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full border border-slate-300';
+      }
+
+      updateLiveScoreDisplay();
+    }
+
+    // 17. Final Evaluation
+    function processFinalEvaluation() {
+      const name = document.getElementById('patientName').value.trim() || "ไม่ระบุชื่อ";
+      const age = parseInt(document.getElementById('patientAge').value) || 60;
+      const isLowEdu = document.querySelector('input[name="eduLevel"]:checked').value === "le6";
+
+      const raw = calculateRawTotal();
+      const bonus = (isLowEdu && raw < 30) ? 1 : 0;
+      const finalScore = Math.min(30, raw + bonus);
+
+      let triage = "Green", statusText = "🟢 ปกติ (Normal)", icon = "🟢", intervalMonths = 6;
+      if (finalScore <= 17) {
+        triage = "Red"; statusText = "🔴 เสี่ยงภาวะสมองเสื่อม (High Risk)"; icon = "🔴"; intervalMonths = 1;
+      } else if (finalScore <= 25) {
+        triage = "Yellow"; statusText = "🟡 เสี่ยงรู้คิดบกพร่องเล็กน้อย (MCI)"; icon = "🟡"; intervalMonths = 3;
+      }
+
+      const nextDue = new Date();
+      nextDue.setMonth(nextDue.getMonth() + intervalMonths);
+      const nextDueStr = nextDue.toISOString().split('T')[0];
+
+      finalPayload = { name, age, rawScore: raw, finalScore, eduBonus: bonus, triage, statusText, nextDueDate: nextDueStr, domainBreakdown: assessmentScores };
+
+      document.getElementById('resIcon').innerText = icon;
+      document.getElementById('resName').innerText = name;
+      document.getElementById('resScore').innerText = `${finalScore} / 30 คะแนน`;
+      document.getElementById('resEduBonus').innerText = `+${bonus} คะแนน (${isLowEdu ? '<= 6 ปี' : '> 6 ปี'})`;
+      document.getElementById('resStatus').innerText = statusText;
+      document.getElementById('resDueDate').innerText = nextDueStr;
+
+      goToPage('Result');
+    }
+
+    // 18. Submit Backend
+    async function submitToBackend() {
+      let queue = JSON.parse(localStorage.getItem('moca_local_records') || '[]');
+      queue.push(finalPayload);
+      localStorage.setItem('moca_local_records', JSON.stringify(queue));
+
+      if (navigator.onLine && BACKEND_API_URL !== "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+        try {
+          await fetch(BACKEND_API_URL, {
+            method: "POST", mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(finalPayload)
+          });
+          alert("บันทึกข้อมูลสำเร็จ");
+        } catch (e) {
+          alert("บันทึกในเครื่องแล้ว");
+        }
+      } else {
+        alert("บันทึกข้อมูลในเครื่องเรียบร้อย (โหมดออฟไลน์)");
+      }
+
+      if (typeof liff !== "undefined" && liff.isInClient()) {
+        liff.closeWindow();
+      } else {
+        goToPage(1);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -49,25 +49,36 @@
     <div class="p-4 sm:p-5 space-y-4">
 
       <!-- ================= หน้า 1: ข้อมูลทั่วไปและการศึกษา ================= -->
-      <div id="page1" class="moca-screen space-y-4">
+      <div id="page1" class="moca-screen space-y-3.5">
         <div class="flex justify-between items-center border-b pb-2">
           <h2 class="text-base font-bold text-slate-800">1. ข้อมูลผู้รับการประเมิน</h2>
-          <button type="button" onclick="playVoicePrompt('กรุณากรอกข้อมูล ชื่อ นามสกุล อายุ และระดับการศึกษา เพื่อเริ่มต้นทำแบบประเมินค่ะ')" class="voice-btn bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 border border-amber-300">
+          <button type="button" onclick="playVoicePrompt('กรุณากรอกข้อมูล ชื่อ นามสกุล อายุ เบอร์ติดต่อ ที่อยู่ และระดับการศึกษา เพื่อเริ่มต้นทำแบบประเมินค่ะ')" class="voice-btn bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 border border-amber-300">
             <span>🔊</span> ฟังคำแนะนำ
           </button>
         </div>
         
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">ชื่อ - นามสกุล ผู้สูงอายุ</label>
-          <input type="text" id="patientName" placeholder="เช่น คุณยายสมศรี ใจดี" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm sm:text-base focus:border-sky-500 outline-none">
+          <label class="block text-xs font-bold text-slate-600 mb-1">ชื่อ - นามสกุล ผู้สูงอายุ <span class="text-rose-500">*</span></label>
+          <input type="text" id="patientName" placeholder="เช่น คุณยายสมศรี ใจดี" class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm focus:border-sky-500 outline-none transition-colors">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">อายุ (ปี) <span class="text-rose-500">*</span></label>
+            <input type="number" id="patientAge" placeholder="เช่น 68" class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm focus:border-sky-500 outline-none transition-colors">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">เบอร์โทรศัพท์ติดต่อ</label>
+            <input type="tel" id="patientPhone" placeholder="08x-xxx-xxxx" class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm focus:border-sky-500 outline-none transition-colors">
+          </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">อายุ (ปี)</label>
-          <input type="number" id="patientAge" placeholder="เช่น 68" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm sm:text-base focus:border-sky-500 outline-none">
+          <label class="block text-xs font-bold text-slate-600 mb-1">ที่อยู่ / ตำบล / อำเภอ</label>
+          <textarea id="patientAddress" rows="2" placeholder="เช่น 123 หมู่ 2 ต.บางหมาก อ.เมือง ชุมพร" class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm focus:border-sky-500 outline-none resize-none transition-colors"></textarea>
         </div>
 
-        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 space-y-2">
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 space-y-1.5">
           <label class="block text-xs font-black text-amber-900">ระดับการศึกษา (เกณฑ์ปรับคะแนน MoCA):</label>
           <div class="space-y-1.5">
             <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
@@ -81,7 +92,6 @@
           </div>
         </div>
 
-        <!-- บรรทัดที่ 46 เดิม: <button onclick="goToPage(2)" ... -->
         <button onclick="startAssessment()" class="btn-touch w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-2xl shadow mt-2">
           เริ่มทำแบบทดสอบ ➔
         </button>
@@ -791,7 +801,7 @@
               <span id="recallHearingStatus" class="text-[10px] text-slate-400">ยังไม่เริ่ม</span>
             </div>
             <div id="recallChipsContainer" class="bg-white p-2.5 rounded-xl border border-slate-200 min-h-[60px] max-h-[120px] overflow-y-auto flex flex-wrap gap-1.5 items-center content-start">
-              <span class="text-xs text-slate-400 italic" id="emptyRecallPlaceholder">กดปุ่มเริ่มแล้วพูดทวนคำศัพท์ทั้ง 5 คำ (ใบหน้า, ผ้าไหม, วัด, มะลิ, สีแดง)</span>
+              <span class="text-xs text-slate-400 italic" id="emptyRecallPlaceholder">กดปุ่มเริ่มแล้วพูดทวนคำศัพท์ทั้ง 5 คำ (จำคำไหนได้บางเอ่ย)</span>
             </div>
           </div>
 
@@ -939,6 +949,8 @@
 
         <div class="bg-slate-50 p-4 rounded-2xl text-left text-sm space-y-2.5 border">
           <div class="flex justify-between"><span class="text-slate-500">ผู้รับการประเมิน:</span><strong id="resName" class="text-slate-800">-</strong></div>
+          <div class="flex justify-between"><span class="text-slate-500">เบอร์โทรศัพท์:</span><span id="resPhone" class="text-slate-700 font-medium">-</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">ที่อยู่:</span><span id="resAddress" class="text-slate-700 font-medium text-right max-w-[60%] truncate">-</span></div>
           <div class="flex justify-between"><span class="text-slate-500">คะแนนสุทธิ (MoCA):</span><strong id="resScore" class="text-sky-700 text-lg">0 / 30</strong></div>
           <div class="flex justify-between text-xs text-slate-500"><span>แต้มปรับการศึกษา:</span><span id="resEduBonus">+0 คะแนน</span></div>
           <div class="flex justify-between text-xs text-slate-500 border-t pt-2"><span>วันนัดประเมินซ้ำ:</span><strong id="resDueDate" class="text-slate-700">-</strong></div>
@@ -973,17 +985,14 @@
     }
 
     function stopAllVoice() {
-      // 1. ยกเลิกเสียงพูดสังเคราะห์ทั้งหมดทันที
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
 
-      // 2. เคลียร์ Flag การเล่นเสียงวนซ้ำทั้งหมด
       isSpeaking = false;
       isPlayingDigit = false;
       isPlayingTap = false;
 
-      // 3. หยุดตัวจับเวลาทั้งหมด
       if (fluencyTimerInterval) {
         clearInterval(fluencyTimerInterval);
         fluencyTimerInterval = null;
@@ -996,7 +1005,6 @@
       }
       isRecallRunning = false;
 
-      // 4. สั่งปิดไมโครโฟนที่กำลังทำงานอยู่
       if (fluencyRec) {
         try { fluencyRec.abort(); } catch(e){}
         fluencyRec = null;
@@ -1006,7 +1014,6 @@
         recallRec = null;
       }
 
-      // 5. คืนค่า UI ของปุ่มไมโครโฟนและปุ่มอ่าน
       document.querySelectorAll('.mic-active').forEach(el => el.classList.remove('mic-active'));
       const btnSpeak = document.getElementById('btnSpeak');
       if (btnSpeak) {
@@ -1030,7 +1037,7 @@
       const naturalText = text.replace(/\s+/g, ' ').trim();
       const u = new SpeechSynthesisUtterance(naturalText);
       u.lang = 'th-TH';
-      u.rate = 0.72;    // ความเร็วช้าชัดเจนสำหรับผู้สูงอายุ
+      u.rate = 0.72;
       u.pitch = 1.0;
 
       const v = getThaiVoice();
@@ -1044,7 +1051,6 @@
       window.speechSynthesis.speak(u);
     }
 
-    // ================= Fuzzy Matcher สำหรับเสียงผู้สูงอายุและสำเนียงท้องถิ่น =================
     function normalizeThaiSpeech(str) {
       if (!str) return "";
       let s = str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'–—]/g, "");
@@ -1063,7 +1069,6 @@
       });
     }
 
-    // 1. ตัวแปรเก็บคะแนนรวม MoCA (รวม 30 คะแนน)
     let assessmentScores = {
       trail: 0, cube: 0, clockCircle: 0, clockNums: 0, clockHands: 0,
       animal1: 0, animal2: 0, animal3: 0,
@@ -1085,14 +1090,14 @@
         display.innerText = `${total} / 30`;
       }
     }
-function startAssessment() {
+
+    function startAssessment() {
       const nameInput = document.getElementById('patientName');
       const ageInput = document.getElementById('patientAge');
 
       const name = nameInput.value.trim();
       const age = parseInt(ageInput.value, 10);
 
-      // ตรวจสอบชื่อ-นามสกุล
       if (!name) {
         alert("⚠️ กรุณากรอก 'ชื่อ - นามสกุล' ของผู้สูงอายุก่อนเริ่มทำแบบทดสอบค่ะ");
         nameInput.focus();
@@ -1103,7 +1108,6 @@ function startAssessment() {
         nameInput.classList.remove('border-rose-500', 'bg-rose-50');
       }
 
-      // ตรวจสอบอายุ
       if (!age || isNaN(age) || age <= 0 || age > 130) {
         alert("⚠️ กรุณากรอก 'อายุ (ปี)' ให้ถูกต้องก่อนเริ่มทำแบบทดสอบค่ะ");
         ageInput.focus();
@@ -1117,9 +1121,8 @@ function startAssessment() {
       goToPage(2);
     }
 
-    // 2. ฟังก์ชันสลับหน้าจอ พร้อมระบบตัดเสียงค้างทันที
     function goToPage(pageNum) {
-      stopAllVoice(); // ตัดเสียงพูด ลูปอ่าน และปิดไมโครโฟนทั้งหมดก่อนสลับหน้า
+      stopAllVoice();
 
       document.querySelectorAll('.moca-screen').forEach(p => p.classList.add('hidden'));
       const targetPage = document.getElementById(`page${pageNum}`);
@@ -1265,7 +1268,6 @@ function startAssessment() {
           trailBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700 transition-colors';
           assessmentScores.trail = 1;
           updateLiveScoreDisplay();
-         // เลื่อนจอลงมาที่กล่องวาดรูปลูกบาศก์ และอ่านโจทย์ข้อ ข. อัตโนมัติ
           setTimeout(() => {
             document.getElementById('cubeCanvas')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             playVoicePrompt("เก่งมากค่ะ ต่อไป ข้อ ขอไข่ ให้วาดภาพสามมิติตามตัวอย่างด้านซ้ายมือ ลงในช่องว่างด้านขวามือค่ะ");
@@ -1273,7 +1275,6 @@ function startAssessment() {
         }
       }
     }
-
 
     function resetTrailCanvas() {
       userStrokes = [];
@@ -1294,7 +1295,7 @@ function startAssessment() {
     window.addEventListener('touchend', stopDraw);
     redrawCanvas();
 
-    // ================= 4. Cube 3D Evaluation Logic =================
+    // 4. Cube 3D Evaluation Logic
     const cubeCanvas = document.getElementById('cubeCanvas');
     const cubeCtx = cubeCanvas.getContext('2d');
     const cubeBadge = document.getElementById('cubeBadge');
@@ -1367,7 +1368,7 @@ function startAssessment() {
       return [start, end];
     }
 
-   function evaluateCubeDrawing() {
+    function evaluateCubeDrawing() {
       if (cubeStrokes.length === 0) return;
 
       const imgData = cubeCtx.getImageData(0, 0, cubeCanvas.width, cubeCanvas.height);
@@ -1390,14 +1391,11 @@ function startAssessment() {
       const width = maxX - minX;
       const height = maxY - minY;
 
-      // 1. ตรวจสอบขนาดและปริมาณเส้น (ลูกบาศก์ 12 เส้นต้องมีความยาวรวมเพียงพอ)
       if (width < 60 || height < 60 || drawnPixels < 380) {
         setCubeResult(false, "ภาพมีขนาดเล็กเกินไป หรือเส้นสั้นเกินไป");
         return;
       }
 
-      // 2. ตรวจสอบพื้นที่ใจกลางกล่อง (Inner Core Density Check)
-      // กล่องทึบจะมีแต่กรอบด้านนอก พื้นที่ 30% - 70% ตรงกลางจะไม่มีเส้นโครงสร้างด้านหลังพาดผ่าน
       const coreX1 = minX + width * 0.32, coreX2 = minX + width * 0.68;
       const coreY1 = minY + height * 0.32, coreY2 = minY + height * 0.68;
       let centralPixels = 0;
@@ -1409,10 +1407,7 @@ function startAssessment() {
         }
       }
 
-      // 3. วิเคราะห์ทิศทางเส้นตรง (Line Orientation Analysis)
-      let horizontalLines = 0; // แนวนอน (เป้าหมาย 4)
-      let verticalLines = 0;   // แนวตั้ง (เป้าหมาย 4)
-      let obliqueLines = 0;    // เส้นทแยง 3D (เป้าหมาย 4)
+      let horizontalLines = 0, verticalLines = 0, obliqueLines = 0;
       let allPoints = [];
 
       cubeStrokes.forEach(stroke => {
@@ -1423,7 +1418,7 @@ function startAssessment() {
           const p1 = simplified[i];
           const p2 = simplified[i + 1];
           const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-          if (len < 18) continue; // กรองรอยหยักและเส้นสั้นออก
+          if (len < 18) continue;
 
           const angle = Math.abs(Math.atan2(p2.y - p1.y, p2.x - p1.x) * (180 / Math.PI));
           if (angle <= 25 || angle >= 155) {
@@ -1436,20 +1431,14 @@ function startAssessment() {
         }
       });
 
-      // 4. ตรวจสอบจุดเชื่อมมุม (Vertices)
       let uniqueCorners = [];
       allPoints.forEach(v => {
         const exists = uniqueCorners.some(c => Math.hypot(c.x - v.x, c.y - v.y) < 18);
         if (!exists) uniqueCorners.push(v);
       });
 
-      // 5. เกณฑ์ตัดสิน MoCA ลูกบาศก์ 3 มิติแบบโปร่งใส (Transparent 3D Cube):
-      // - ต้องมีเส้นทแยงมุมแสดงความลึก >= 3 เส้น
-      // - ต้องมีเส้นโครงสร้างโปร่งใสด้านหลังตัดผ่านแกนกลางกล่อง (centralPixels >= 45 px)
-      // - มีเส้นแนวนอนและแนวตั้งด้านหน้า-หลังอย่างละ >= 3 เส้น
-      // - มีมุมเชื่อมต่อกันครบถ้วน (7 - 12 มุม)
       const hasOblique3D = obliqueLines >= 3;
-      const isTransparent = centralPixels >= 45; // กล่องทึบในรูปจะมี centralPixels น้อยมาก (< 20px)
+      const isTransparent = centralPixels >= 45;
       const hasH = horizontalLines >= 3;
       const hasV = verticalLines >= 3;
       const hasGoodCorners = uniqueCorners.length >= 7 && uniqueCorners.length <= 12;
@@ -1467,7 +1456,7 @@ function startAssessment() {
       }
     }
 
-   function setCubeResult(isPass, reasonText) {
+    function setCubeResult(isPass, reasonText) {
       assessmentScores.cube = isPass ? 1 : 0;
 
       if (isPass) {
@@ -1477,7 +1466,6 @@ function startAssessment() {
         cubeReason.innerHTML = `<span class="text-emerald-600 font-semibold">✓ ${reasonText}</span>`;
         cubeAnalysisBox.className = 'bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center transition-all space-y-1';
 
-        // เมื่อวาดลูกบาศก์ผ่าน ให้เลื่อนจอลงไปที่ข้อ ค. และอ่านโจทย์วาดนาฬิกาอัตโนมัติ
         setTimeout(() => {
           document.getElementById('clockCanvas')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           playVoicePrompt("ข้อต่อไป ข้อ คอ ควาย วาดหน้าปัดนาฬิกาเป็นวงกลม ใส่ตัวเลขหนึ่งถึงสิบสองให้ครบ และวาดเข็มนาฬิกาบอกเวลา สิบเอ็ดนาฬิกา สิบนาที ค่ะ");
@@ -1592,14 +1580,14 @@ function startAssessment() {
         evaluateClockDrawing();
       }
     }
-function evaluateClockDrawing() {
+
+    function evaluateClockDrawing() {
       if (clockStrokes.length === 0) return;
 
       const imgData = clockCtx.getImageData(0, 0, clockCanvas.width, clockCanvas.height);
       const data = imgData.data;
       let minX = clockCanvas.width, maxX = 0, minY = clockCanvas.height, maxY = 0, drawnPixels = 0;
 
-      // 1. หาขอบเขตพื้นที่วาดทั้งหมด
       for (let y = 0; y < clockCanvas.height; y++) {
         for (let x = 0; x < clockCanvas.width; x++) {
           const idx = (y * clockCanvas.width + x) * 4;
@@ -1619,12 +1607,10 @@ function evaluateClockDrawing() {
       const centerY = minY + height / 2;
       const radius = Math.min(width, height) / 2;
 
-      // --- เกณฑ์ที่ 1: วงกลม (Contour) ---
       const isCircle = width >= 75 && height >= 75 && 
                        (width / (height || 1) >= 0.72 && width / (height || 1) <= 1.38) && 
                        drawnPixels >= 260;
 
-      // --- เกณฑ์ที่ 2: ตัวเลขครบ 12 ตำแหน่ง (12 Sectors Check) ---
       let sectorsFilled = new Array(12).fill(0);
 
       for (let y = minY; y <= maxY; y++) {
@@ -1635,7 +1621,6 @@ function evaluateClockDrawing() {
             const dy = y - centerY;
             const dist = Math.hypot(dx, dy);
 
-            // ตรวจเฉพาะบริเวณรัศมีที่เขียนตัวเลข (45% - 90% ของหน้าปัด)
             if (dist >= radius * 0.45 && dist <= radius * 0.90) {
               let angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
               if (angle < 0) angle += 360;
@@ -1646,15 +1631,11 @@ function evaluateClockDrawing() {
         }
       }
 
-      // ตรวจสอบว่าในแต่ละช่อง 30 องศามีเส้นเขียนจริง (อย่างน้อย 25px ต่อช่อง)
       const populated12Sectors = sectorsFilled.filter(count => count >= 25).length;
-      
-      // เกณฑ์ MoCA เข้มงวด: ต้องมีตัวเลขกระจายครบอย่างน้อย 11 จาก 12 โซน และมีจำนวนขีดเขียน (Strokes) ไม่น้อยกว่า 12 ชิ้น
       const hasNumbers = isCircle && populated12Sectors >= 11 && clockStrokes.length >= 12;
 
-      // --- เกณฑ์ที่ 3: เข็มนาฬิกาชี้ 11:10 น. (Hands) ---
-      let hasHandAt11 = false; // ชี้เลข 11 (มุม 305° - 355°)
-      let hasHandAt2 = false;  // ชี้เลข 2 (มุม 35° - 85°)
+      let hasHandAt11 = false;
+      let hasHandAt2 = false;
       let totalHandsFromCenter = 0;
 
       clockStrokes.forEach(stroke => {
@@ -1665,7 +1646,6 @@ function evaluateClockDrawing() {
         const dStart = Math.hypot(startPt.x - centerX, startPt.y - centerY);
         const dEnd = Math.hypot(endPt.x - centerX, endPt.y - centerY);
 
-        // ต้องมีปลายด้านหนึ่งอยู่ใกล้ศูนย์กลาง (<= 30% R) และอีกด้านชี้ออกนอก (>= 45% R)
         if ((dStart <= radius * 0.30 && dEnd >= radius * 0.45) || 
             (dEnd <= radius * 0.30 && dStart >= radius * 0.45)) {
 
@@ -1681,7 +1661,6 @@ function evaluateClockDrawing() {
 
       const hasHands = isCircle && (totalHandsFromCenter >= 2) && hasHandAt11 && hasHandAt2;
 
-      // บันทึกคะแนน
       assessmentScores.clockCircle = isCircle ? 1 : 0;
       assessmentScores.clockNums = hasNumbers ? 1 : 0;
       assessmentScores.clockHands = hasHands ? 1 : 0;
@@ -1746,11 +1725,11 @@ function evaluateClockDrawing() {
     clockCanvas.addEventListener('touchmove', drawClock, { passive: false });
     window.addEventListener('touchend', stopClockDraw);
 
-    // ================= 6. Naming Voice Logic =================
+    // 6. Naming Voice Logic
     const animalAnswerKeywords = {
       animal1: ["สิงโต", "สิงห์", "สิงโตตัวผู้", "สิง", "ราชสีห์", "โตะ"],
       animal2: ["แรด", "แลด", "แรดขาว", "แรดดำ"],
-      animal3: ["อูฐ", "อูด", "อูต"]
+      animal3: ["อูฐ", "อูด", "อูต","อู๊ด","อู๊ต"]
     };
 
     function startNamingVoice(animalKey) {
@@ -1811,7 +1790,7 @@ function evaluateClockDrawing() {
         badgeElem.textContent = `${score} / 1 แต้ม`;
         badgeElem.className = isCorrect 
           ? 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700 transition-colors' 
-          : 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700 transition-colors';
+          : 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700';
       }
 
       const totalNaming = (assessmentScores.animal1 || 0) + (assessmentScores.animal2 || 0) + (assessmentScores.animal3 || 0);
@@ -1821,7 +1800,6 @@ function evaluateClockDrawing() {
       }
       updateLiveScoreDisplay();
 
-      // นำทางและเปิดไมค์คำถามถัดไปอัตโนมัติ
       if (animalKey === 'animal1') {
         setTimeout(() => {
           playVoicePrompt("สัตว์ตัวที่สอง ในรูปคือตัวอะไรคะ", () => {
@@ -1905,7 +1883,7 @@ function evaluateClockDrawing() {
       text.innerText = "กดเพื่อฟังเสียงอ่านอีกรอบ";
     }
 
-    // ================= 8. Attention - Digits Logic =================
+    // 8. Attention - Digits Logic
     const digitData = {
       fwd: { sequence: ["2", "1", "8", "5", "4"], targetText: "21854", label: "2 - 1 - 8 - 5 - 4" },
       bwd: { sequence: ["7", "4", "2"], targetText: "247", label: "7 - 4 - 2 (ย้อนกลับเป็น 2 - 4 - 7)" }
@@ -2066,7 +2044,7 @@ function evaluateClockDrawing() {
       }
     }
 
-    // 9. Tapping (เคาะตามจังหวะ)
+    // 9. Tapping
     const DIGIT_SEQUENCE = "52139411806215194511141905112".split("");
     let currentSequenceIndex = -1, tapCountInCurrentDigit = 0, isPlayingTap = false;
     let statsCorrect = 0, statsFalseAlarm = 0, statsMissed = 0;
@@ -2166,7 +2144,7 @@ function evaluateClockDrawing() {
       });
     }
 
-    // ================= 10. Serial 7s Voice Logic =================
+    // 10. Serial 7s Voice Logic
     const standardAnswers = [93, 86, 79, 72, 65];
     const baseNumbers = [100, 93, 86, 79, 72];
     let userResults = [null, null, null, null, null];
@@ -2296,7 +2274,7 @@ function evaluateClockDrawing() {
       updateLiveScoreDisplay();
     }
 
-    // ================= 11. Sentences Logic =================
+    // 11. Sentences Logic
     const sentenceTargets = {
       1: "ฉันรู้ว่าจอมเป็นคนเดียวที่มาช่วยงานในวันนี้",
       2: "แมวมักซ่อนตัวอยู่หลังเก้าอี้เมื่อมีหมาอยู่ในห้อง"
@@ -2347,7 +2325,6 @@ function evaluateClockDrawing() {
         const spoken = e.results[0][0].transcript;
         transcriptElem.textContent = spoken;
 
-        // คัดกรองและตรวจสอบความถูกต้องแบบครบทั้งประโยค
         const cleanSpoken = normalizeThaiSpeech(spoken);
         const cleanTarget = normalizeThaiSpeech(sentenceTargets[index]);
 
@@ -2386,7 +2363,7 @@ function evaluateClockDrawing() {
       rec.start();
     }
 
-    // ================= 12. Verbal Fluency =================
+    // 12. Verbal Fluency
     let fluencyTimerInterval = null, fluencyTimeLeft = 60, fluencyRec = null, isFluencyRunning = false;
     let recordedWordsSet = new Set(), processedWordsHistory = new Set();
 
@@ -2479,7 +2456,7 @@ function evaluateClockDrawing() {
       }, 1000);
     }
 
-    // ================= 13. Abstraction Voice =================
+    // 13. Abstraction Voice
     const abstractKeywords = {
       1: ["ยานพาหนะ", "พาหนะ", "เดินทาง", "ขนส่ง", "คมนาคม", "เครื่องสัญจร", "เครื่องขับขี่", "โดยสาร", "รถ", "ขับได้", "ขี่ได้"],
       2: ["เครื่องมือวัด", "อุปกรณ์วัด", "เครื่องวัด", "การวัด", "ใช้วัด", "ตวงวัด", "วัดค่า", "บอกปริมาณ", "มาตราวัด", "วัด", "บอกขนาด", "ดูเวลา","มีตัวเลข"]
@@ -2559,13 +2536,13 @@ function evaluateClockDrawing() {
       }
     }
 
-    // ================= 14. Delayed Recall Voice Test =================
+    // 14. Delayed Recall Voice Test
     const targetMemoryMap = {
       "ใบหน้า": ["ใบหน้า"],
-      "ผ้าไหม": ["ผ้าไหม", "ผ้าไม", , "ผ้าไม่"],
-      "วัด": ["วัด", "หวัด", "วัตร", ],
+      "ผ้าไหม": ["ผ้าไหม", "ผ้าไม", "ผ้าไม่"],
+      "วัด": ["วัด", "หวัด", "วัตร"],
       "มะลิ": ["ดอกมะลิ", "มะลิ", "มะลี"],
-      "สีแดง": ["สีแดง", "แดง", ]
+      "สีแดง": ["สีแดง", "แดง"]
     };
 
     let recallTimerInterval = null;
@@ -2698,7 +2675,7 @@ function evaluateClockDrawing() {
       }, 500);
     }
 
-    // ================= 15. Orientation Logic =================
+    // 15. Orientation Logic
     const oriQuestions = {
       date: "วันนี้ วันที่เท่าไหร่คะ",
       month: "ตอนนี้ เดือนอะไรคะ",
@@ -2730,7 +2707,7 @@ function evaluateClockDrawing() {
       ["มิถุนา", "มิถุนายน", "เดือนหก"],
       ["กรกฎา", "กรกฎาคม", "เดือนเจ็ด"],
       ["สิงหา", "สิงหาคม", "เดือนแปด"],
-      ["กันยา", "กันยายน", "เดือนเก้า"],
+      ["กันยา", "กันยายน", "เดือนเก้า", "กัญญา"],
       ["ตุลา", "ตุลาคม", "เดือนสิบ"],
       ["พฤศจิกา", "พฤศจิกายน", "เดือนสิบเอ็ด"],
       ["ธันวา", "ธันวาคม", "เดือนสิบสอง"]
@@ -2856,10 +2833,12 @@ function evaluateClockDrawing() {
       }
     }
 
-    // ================= 16. Final Evaluation =================
+    // 16. Final Evaluation
     function processFinalEvaluation() {
       const name = document.getElementById('patientName').value.trim() || "ไม่ระบุชื่อ";
       const age = parseInt(document.getElementById('patientAge').value) || 60;
+      const phone = document.getElementById('patientPhone')?.value.trim() || "-";
+      const address = document.getElementById('patientAddress')?.value.trim() || "-";
       const isLowEdu = document.querySelector('input[name="eduLevel"]:checked').value === "le6";
 
       const raw = calculateRawTotal();
@@ -2877,10 +2856,24 @@ function evaluateClockDrawing() {
       nextDue.setMonth(nextDue.getMonth() + intervalMonths);
       const nextDueStr = nextDue.toISOString().split('T')[0];
 
-      finalPayload = { name, age, rawScore: raw, finalScore, eduBonus: bonus, triage, statusText, nextDueDate: nextDueStr, domainBreakdown: assessmentScores };
+      finalPayload = { 
+        name, 
+        age, 
+        phone, 
+        address, 
+        rawScore: raw, 
+        finalScore, 
+        eduBonus: bonus, 
+        triage, 
+        statusText, 
+        nextDueDate: nextDueStr, 
+        domainBreakdown: assessmentScores 
+      };
 
       document.getElementById('resIcon').innerText = icon;
       document.getElementById('resName').innerText = name;
+      document.getElementById('resPhone').innerText = phone;
+      document.getElementById('resAddress').innerText = address;
       document.getElementById('resScore').innerText = `${finalScore} / 30 คะแนน`;
       document.getElementById('resEduBonus').innerText = `+${bonus} คะแนน (${isLowEdu ? '<= 6 ปี' : '> 6 ปี'})`;
       document.getElementById('resStatus').innerText = statusText;

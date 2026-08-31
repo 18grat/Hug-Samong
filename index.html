@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ฮักสมอง - แบบประเมิน MoCA</title>
   
-  <!-- UI Framework & LIFF SDK -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   
@@ -20,7 +19,6 @@
 
   <div class="max-w-md w-full mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden flex flex-col my-auto">
     
-    <!-- แถบ Header แสดงขั้นตอนและคะแนนสด -->
     <div class="bg-sky-600 text-white p-4 flex justify-between items-center shadow-md">
       <div>
         <h1 class="text-base sm:text-lg font-black leading-tight">🧠 ฮักสมอง: คัดกรอง MoCA</h1>
@@ -32,10 +30,8 @@
       </div>
     </div>
 
-    <!-- กล่องแสดงเนื้อหาแต่ละหน้าจอ -->
     <div class="p-4 sm:p-5 space-y-4">
 
-      <!-- ================= หน้า 1: ข้อมูลทั่วไปและการศึกษา ================= -->
       <div id="page1" class="moca-screen space-y-4">
         <h2 class="text-base font-bold text-slate-800 border-b pb-2">1. ข้อมูลผู้รับการประเมิน</h2>
         
@@ -68,14 +64,12 @@
         </button>
       </div>
 
-      <!-- ================= หน้า 2: Visuospatial & Executive (5 คะแนน) ================= -->
       <div id="page2" class="moca-screen hidden space-y-4">
         <div class="flex justify-between items-center border-b pb-2">
           <h2 class="text-base font-bold text-slate-800">2. มิติสัมพันธ์ & การบริหารจัดการ</h2>
           <span class="text-xs text-sky-600 font-bold">เต็ม 5 คะแนน</span>
         </div>
 
-        <!-- 1.1 ลากเส้นสลับลำดับบน Canvas -->
         <div class="space-y-2">
           <div class="flex justify-between items-center">
             <p class="text-xs font-bold text-slate-700">ก. ลากเส้นต่อจุดสลับ (1 ➔ ก ➔ 2 ➔ ข...)</p>
@@ -95,7 +89,6 @@
           <p id="trailHint" class="text-[11px] text-slate-500 text-center">เริ่มลากจาก "1" ไป "ก" จนถึง "จ"</p>
         </div>
 
-        <!-- 1.2 วาดรูปลูกบาศก์ 3 มิติ (Cube) -->
         <div class="border-t pt-3 space-y-2">
           <div class="flex justify-between items-center">
             <div>
@@ -137,7 +130,6 @@
           </div>
         </div>
 
-        <!-- 1.3 วาดหน้าปัดนาฬิกา บอกเวลา 11:10 น. -->
         <div class="border-t pt-3 space-y-2">
           <div class="flex justify-between items-center">
             <div>
@@ -174,61 +166,60 @@
         </button>
       </div>
 
-      <!-- ================= หน้า 3: Naming (3 คะแนน) ================= -->
-  <div id="page3" class="moca-screen hidden space-y-4">
+      <div id="page3" class="moca-screen hidden space-y-4">
         <div class="flex justify-between items-center border-b pb-2">
           <h2 class="text-base font-bold text-slate-800">3. การเรียกชื่อสัตว์ (Naming)</h2>
           <span id="namingTotalBadge" class="text-xs text-sky-600 font-bold">แต้ม 0/3 คะแนน</span>
         </div>
 
-        <!-- สัตว์ตัวที่ 1 -->
         <div class="bg-slate-50 p-3 rounded-2xl border space-y-2">
           <div class="flex justify-between items-center">
-            <p class="text-xs font-bold text-slate-600 flex items-center gap-2">
-              <img src="lion.jpg" alt="" class="w=30 h=30 rounded object-cover"> สัตว์ตัวที่ 1
-            </p>
+            <div class="flex items-center gap-3">
+              <img src="lion.jpg" alt="สิงโต" class="w-16 h-16 rounded-xl object-contain border border-slate-200 shadow-sm bg-white p-1">
+              <span class="text-xs font-bold text-slate-700">สัตว์ตัวที่ 1</span>
+            </div>
             <span id="badge-animal1" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
               0 / 1 แต้ม
             </span>
           </div>
 
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-3 gap-2 pt-1">
             <button onclick="setDirect('animal1', 1, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">สิงโต</button>
             <button onclick="setDirect('animal1', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">เสือ</button>
             <button onclick="setDirect('animal1', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">เสือดาว</button>
           </div>
         </div>
 
-        <!-- สัตว์ตัวที่ 2 -->
         <div class="bg-slate-50 p-3 rounded-2xl border space-y-2">
           <div class="flex justify-between items-center">
-            <p class="text-xs font-bold text-slate-600 flex items-center gap-2">
-              <img src="rhino.jpg" alt="" class="w=30 h=30 rounded object-cover"> สัตว์ตัวที่ 2
-            </p>
+            <div class="flex items-center gap-3">
+              <img src="rhino.jpg" alt="แรด" class="w-16 h-16 rounded-xl object-contain border border-slate-200 shadow-sm bg-white p-1">
+              <span class="text-xs font-bold text-slate-700">สัตว์ตัวที่ 2</span>
+            </div>
             <span id="badge-animal2" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
               0 / 1 แต้ม
             </span>
           </div>
 
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-3 gap-2 pt-1">
             <button onclick="setDirect('animal2', 1, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">แรด</button>
             <button onclick="setDirect('animal2', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">ฮิปโป</button>
             <button onclick="setDirect('animal2', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">หมูป่า</button>
           </div>
         </div>
 
-        <!-- สัตว์ตัวที่ 3 -->
         <div class="bg-slate-50 p-3 rounded-2xl border space-y-2">
           <div class="flex justify-between items-center">
-            <p class="text-xs font-bold text-slate-600 flex items-center gap-2">
-              <img src="camel.jpg" alt="" class="w=30 h=30 rounded object-cover"> สัตว์ตัวที่ 3
-            </p>
+            <div class="flex items-center gap-3">
+              <img src="camel.jpg" alt="อูฐ" class="w-16 h-16 rounded-xl object-contain border border-slate-200 shadow-sm bg-white p-1">
+              <span class="text-xs font-bold text-slate-700">สัตว์ตัวที่ 3</span>
+            </div>
             <span id="badge-animal3" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
               0 / 1 แต้ม
             </span>
           </div>
 
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-3 gap-2 pt-1">
             <button onclick="setDirect('animal3', 1, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">อูฐ</button>
             <button onclick="setDirect('animal3', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">ม้า</button>
             <button onclick="setDirect('animal3', 0, this)" class="score-btn p-2 rounded-xl border text-xs font-bold bg-white text-slate-700">ลา</button>
@@ -241,8 +232,6 @@
         </div>
       </div>
 
-      
-      <!-- ================= หน้า 4: Memory Registration ================= -->
       <div id="page4" class="moca-screen hidden space-y-4 text-center py-2">
         <div class="flex justify-between items-center border-b pb-2 text-left">
           <h2 class="text-base font-bold text-slate-800">4. การลงทะเบียนความจำ (Memory)</h2>
@@ -278,14 +267,12 @@
         </div>
       </div>
 
-      <!-- ================= หน้า 5: Attention & Calculation (6 คะแนน) ================= -->
       <div id="page5" class="moca-screen hidden space-y-4">
         <div class="flex justify-between items-center border-b pb-2">
           <h2 class="text-base font-bold text-slate-800">5. สมาธิและความใส่ใจ (Attention)</h2>
           <span class="text-xs text-sky-600 font-bold">เต็ม 6 คะแนน</span>
         </div>
 
-        <!-- 5. ก. จำตัวเลข -->
         <div class="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
           <div class="flex justify-between items-center border-b border-slate-200 pb-2">
             <p class="text-xs font-bold text-slate-700">ก. จำตัวเลข (เดินหน้า & ถอยหลัง)</p>
@@ -294,7 +281,6 @@
             </span>
           </div>
 
-          <!-- ตอนที่ 1: เดินหน้า -->
           <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2 shadow-sm">
             <div class="flex justify-between items-center">
               <span class="text-xs font-bold text-slate-700">1. ทวนตัวเลขตามลำดับ (เดินหน้า)</span>
@@ -314,7 +300,6 @@
             <p id="hintFwd" class="text-[11px] text-slate-600 text-center font-medium min-h-[16px]"></p>
           </div>
 
-          <!-- ตอนที่ 2: ถอยหลัง -->
           <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2 shadow-sm">
             <div class="flex justify-between items-center">
               <span class="text-xs font-bold text-slate-700">2. ทวนตัวเลขย้อนกลับ (ถอยหลัง)</span>
@@ -335,7 +320,6 @@
           </div>
         </div>
 
-        <!-- 5. ข. เคาะตามจังหวะตัวเลข -->
         <div class="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
           <div class="flex items-center justify-between">
             <div>
@@ -373,7 +357,6 @@
           </div>
         </div>
 
-        <!-- 5. ค. คิดเลข: 100 - 7 ต่อเนื่อง 5 ครั้ง -->
         <div id="serial7s-container" class="bg-slate-50 p-4 rounded-3xl border-2 border-slate-200 space-y-4">
           <div class="flex justify-between items-center border-b pb-2">
             <div>
@@ -386,7 +369,6 @@
           </div>
 
           <div class="grid grid-cols-1 gap-2.5">
-            <!-- ข้อ 1 -->
             <div id="box-step-1" class="bg-white p-3 rounded-2xl border-2 border-sky-300 flex items-center justify-between gap-2 shadow-sm transition-all">
               <span id="label-step-1" class="text-sm sm:text-base font-black text-sky-800 bg-sky-100 px-2.5 py-1 rounded-xl border border-sky-200 min-w-[90px] text-center">100 - 7</span>
               <span id="badge-step-1" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-500">รอคำตอบ</span>
@@ -394,7 +376,6 @@
               <button id="btn-submit-1" onclick="submitStep(1)" class="btn-touch px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-black shadow">ยืนยัน</button>
             </div>
 
-            <!-- ข้อ 2 -->
             <div id="box-step-2" class="bg-slate-100 opacity-60 p-3 rounded-2xl border-2 border-slate-200 flex items-center justify-between gap-2 shadow-sm transition-all">
               <span id="label-step-2" class="text-sm sm:text-base font-bold text-slate-400 bg-slate-200 px-2.5 py-1 rounded-xl border border-slate-300 min-w-[90px] text-center">รอข้อ 1</span>
               <span id="badge-step-2" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-400">-</span>
@@ -402,7 +383,6 @@
               <button id="btn-submit-2" disabled onclick="submitStep(2)" class="btn-touch px-3 py-1.5 bg-slate-300 text-slate-400 rounded-xl text-xs font-black shadow cursor-not-allowed">ยืนยัน</button>
             </div>
 
-            <!-- ข้อ 3 -->
             <div id="box-step-3" class="bg-slate-100 opacity-60 p-3 rounded-2xl border-2 border-slate-200 flex items-center justify-between gap-2 shadow-sm transition-all">
               <span id="label-step-3" class="text-sm sm:text-base font-bold text-slate-400 bg-slate-200 px-2.5 py-1 rounded-xl border border-slate-300 min-w-[90px] text-center">รอข้อ 2</span>
               <span id="badge-step-3" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-400">-</span>
@@ -410,7 +390,6 @@
               <button id="btn-submit-3" disabled onclick="submitStep(3)" class="btn-touch px-3 py-1.5 bg-slate-300 text-slate-400 rounded-xl text-xs font-black shadow cursor-not-allowed">ยืนยัน</button>
             </div>
 
-            <!-- ข้อ 4 -->
             <div id="box-step-4" class="bg-slate-100 opacity-60 p-3 rounded-2xl border-2 border-slate-200 flex items-center justify-between gap-2 shadow-sm transition-all">
               <span id="label-step-4" class="text-sm sm:text-base font-bold text-slate-400 bg-slate-200 px-2.5 py-1 rounded-xl border border-slate-300 min-w-[90px] text-center">รอข้อ 3</span>
               <span id="badge-step-4" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-400">-</span>
@@ -418,7 +397,6 @@
               <button id="btn-submit-4" disabled onclick="submitStep(4)" class="btn-touch px-3 py-1.5 bg-slate-300 text-slate-400 rounded-xl text-xs font-black shadow cursor-not-allowed">ยืนยัน</button>
             </div>
 
-            <!-- ข้อ 5 -->
             <div id="box-step-5" class="bg-slate-100 opacity-60 p-3 rounded-2xl border-2 border-slate-200 flex items-center justify-between gap-2 shadow-sm transition-all">
               <span id="label-step-5" class="text-sm sm:text-base font-bold text-slate-400 bg-slate-200 px-2.5 py-1 rounded-xl border border-slate-300 min-w-[90px] text-center">รอข้อ 4</span>
               <span id="badge-step-5" class="text-xs px-2 py-0.5 rounded-lg font-bold bg-slate-100 text-slate-400">-</span>
@@ -439,14 +417,12 @@
         </div>
       </div>
 
-      <!-- ================= หน้า 6: Language & Abstraction (5 คะแนน) ================= -->
       <div id="page6" class="moca-screen hidden space-y-4">
         <div class="flex justify-between items-center border-b pb-2">
           <h2 class="text-base font-bold text-slate-800">6. ภาษาและความคิดเชิงนามธรรม</h2>
           <span class="text-xs text-sky-600 font-bold">เต็ม 5 คะแนน</span>
         </div>
 
-        <!-- ก. ทวนประโยคยาว 2 ประโยค -->
         <div id="sentence-repeat-container" class="bg-slate-50 p-4 rounded-2xl border space-y-4">
           <div class="flex justify-between items-center border-b pb-2">
             <h3 class="text-sm font-bold text-slate-800">ก. ทวนประโยคยาว 2 ประโยค (เต็ม 2)</h3>
@@ -460,7 +436,6 @@
           </p>
 
           <div class="space-y-3">
-            <!-- ประโยคที่ 1 -->
             <div id="box-sent-1" class="bg-white p-3 rounded-xl border flex flex-col gap-2.5 shadow-sm transition-all">
               <div class="flex justify-between items-center">
                 <span class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">ประโยคที่ 1</span>
@@ -479,7 +454,6 @@
               </div>
             </div>
 
-            <!-- ประโยคที่ 2 -->
             <div id="box-sent-2" class="bg-white p-3 rounded-xl border flex flex-col gap-2.5 shadow-sm transition-all">
               <div class="flex justify-between items-center">
                 <span class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">ประโยคที่ 2</span>
@@ -505,7 +479,6 @@
           </div>
         </div>
 
-        <!-- ข. ความคล่องทางภาษา: คำขึ้นต้นด้วย ก ใน 60 วิ -->
         <div id="fluency-container" class="bg-slate-50 p-4 rounded-2xl border space-y-3">
           <div class="flex justify-between items-center border-b pb-2">
             <div>
@@ -544,7 +517,6 @@
           </div>
         </div>
 
-        <!-- ค. บอกความเหมือนเชิงนามธรรม -->
         <div id="abstraction-container" class="bg-slate-50 p-4 rounded-2xl border space-y-3">
           <div class="flex justify-between items-center border-b pb-2">
             <div>
@@ -557,7 +529,6 @@
           </div>
 
           <div class="space-y-3">
-            <!-- ข้อ 1 -->
             <div id="box-abs-1" class="bg-white p-3 rounded-xl border border-slate-200 space-y-2 shadow-sm">
               <div class="flex justify-between items-center">
                 <span class="text-xs font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">1. รถไฟ — จักรยาน</span>
@@ -575,7 +546,6 @@
               </div>
             </div>
 
-            <!-- ข้อ 2 -->
             <div id="box-abs-2" class="bg-white p-3 rounded-xl border border-slate-200 space-y-2 shadow-sm">
               <div class="flex justify-between items-center">
                 <span class="text-xs font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">2. นาฬิกา — ไม้บรรทัด</span>
@@ -601,14 +571,12 @@
         </div>
       </div>
 
-      <!-- ================= หน้า 7: Delayed Recall & Orientation (11 คะแนน) ================= -->
       <div id="page7" class="moca-screen hidden space-y-4">
         <div class="flex justify-between items-center border-b pb-2">
           <h2 class="text-base font-bold text-slate-800">7. ความจำล่าช้า & วันเวลาสถานที่</h2>
           <span class="text-xs text-sky-600 font-bold">เต็ม 11 คะแนน</span>
         </div>
 
-        <!-- 7. ก. ทวนคำศัพท์ 5 คำที่จำไว้ (เต็ม 5 คะแนน - โหมดพูดตอบ) -->
         <div id="delayed-recall-container" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3.5">
           <div class="flex justify-between items-center border-b pb-2">
             <div>
@@ -661,7 +629,6 @@
           </div>
         </div>
 
-<!-- 7. ข. การรับรู้วัน เวลา สถานที่ (เต็ม 6 คะแนน - โหมดฟังคำถามและพูดตอบ) -->
         <div id="orientation-container" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
           <div class="flex justify-between items-center border-b pb-2">
             <div>
@@ -674,7 +641,6 @@
           </div>
 
           <div class="space-y-2.5">
-            <!-- 1. วันที่ -->
             <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-700">1. วันที่เท่าไหร่?</span>
@@ -691,7 +657,6 @@
               <p id="ori-ans-date" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
             </div>
 
-            <!-- 2. เดือน -->
             <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-700">2. ตอนนี้เดือนอะไร?</span>
@@ -708,7 +673,6 @@
               <p id="ori-ans-month" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
             </div>
 
-            <!-- 3. ปี พ.ศ. -->
             <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-700">3. ปีนี้ปี พ.ศ. อะไร?</span>
@@ -725,7 +689,6 @@
               <p id="ori-ans-year" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
             </div>
 
-            <!-- 4. วันในสัปดาห์ -->
             <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-700">4. วันนี้วันอะไร?</span>
@@ -742,7 +705,6 @@
               <p id="ori-ans-day" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
             </div>
 
-            <!-- 5. สถานที่ -->
             <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-700">5. ตอนนี้อยู่ที่ไหน?</span>
@@ -759,7 +721,6 @@
               <p id="ori-ans-place" class="text-[11px] text-slate-400 italic bg-slate-50 p-1.5 rounded-lg border">ยังไม่ได้ตอบ</p>
             </div>
 
-            <!-- 6. จังหวัด -->
             <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 shadow-sm">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-700">6. ตอนนี้อยู่จังหวัดอะไร?</span>
@@ -778,7 +739,6 @@
           </div>
         </div>
 
-
         <div class="flex gap-2 pt-2">
           <button onclick="goToPage(6)" class="btn-touch w-1/3 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl">ย้อนกลับ</button>
           <button onclick="processFinalEvaluation()" class="btn-touch w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm py-3 rounded-xl shadow-lg">
@@ -787,7 +747,6 @@
         </div>
       </div>
 
-      <!-- ================= หน้าสรุปผล (Result Screen) ================= -->
       <div id="pageResult" class="moca-screen hidden space-y-4 text-center py-2">
         <span id="resIcon" class="text-6xl">🟢</span>
         <h2 id="resStatus" class="text-xl font-black text-slate-800">ปกติ (Normal)</h2>
@@ -809,25 +768,24 @@
   </div>
 
   <script>
-    
     // URL Web App จาก Google Apps Script (ลงท้ายด้วย /exec)
-    const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbzmLPDAkfxROJWWA2ciTvQVkSKbjQeDd2VxugUi5f6Jm1S0y4hG0SFTsACoU10huW5LJQ/exec";
-// URL Web App จาก Google Apps Script (ลงท้ายด้วย /exec)
     const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbzmLPDARfxROjWWA2ciTvQVkSKbjQeDd2VxugUi5f6Jm1S0y4hG0SFTSAcOU10huW5LJ0/exec";
     const MY_LIFF_ID = "2011349854-EMx9HJ7U";
 
-    // เริ่มต้น LIFF ทันทีเมื่อเปิดหน้าเว็บ
-    window.onload = async function() {
+    // 1. เริ่มต้น LIFF SDK ทันทีเมื่อเปิดหน้าเว็บ
+    window.onload = function() {
       if (typeof liff !== "undefined") {
-        try {
-          await liff.init({ liffId: MY_LIFF_ID });
-          console.log("LIFF Init สำเร็จ");
-        } catch (error) {
-          console.error("LIFF Init Error:", error);
-        }
+        liff.init({ liffId: MY_LIFF_ID })
+          .then(() => {
+            console.log("LIFF Init สำเร็จ");
+          })
+          .catch((err) => {
+            console.warn("LIFF Init ไม่สำเร็จ (อาจเปิดนอกแอป LINE):", err);
+          });
       }
     };
-    // 1. ตัวแปรเก็บคะแนนรวม MoCA (รวม 30 คะแนน)
+
+    // 2. ตัวแปรเก็บคะแนนรวม MoCA (รวม 30 คะแนน)
     let assessmentScores = {
       trail: 0, cube: 0, clockCircle: 0, clockNums: 0, clockHands: 0,
       animal1: 0, animal2: 0, animal3: 0,
@@ -850,7 +808,7 @@
       }
     }
 
-    // 2. ฟังก์ชันสลับหน้าจอ (ปลอดภัย ไม่ crash)
+    // 3. ฟังก์ชันสลับหน้าจอ (ปลอดภัย ไม่ crash)
     function goToPage(pageNum) {
       document.querySelectorAll('.moca-screen').forEach(p => p.classList.add('hidden'));
       const targetPage = document.getElementById(`page${pageNum}`);
@@ -869,7 +827,7 @@
       }
     }
 
-    // 3. Trail Making Canvas
+    // 4. Trail Making Canvas
     const trailTargets = [
       { label: '1', x: 120, y: 120 },
       { label: 'ก', x: 225, y: 40 },
@@ -999,7 +957,7 @@
     window.addEventListener('touchend', stopDraw);
     redrawCanvas();
 
-    // 4. Cube Canvas
+    // 5. Cube Canvas
     const cubeCanvas = document.getElementById('cubeCanvas');
     const cubeCtx = cubeCanvas.getContext('2d');
     const cubeBadge = document.getElementById('cubeBadge');
@@ -1111,7 +1069,7 @@
     cubeCanvas.addEventListener('touchmove', drawCube, { passive: false });
     window.addEventListener('touchend', stopCubeDraw);
 
-    // 5. Clock Canvas
+    // 6. Clock Canvas
     const clockCanvas = document.getElementById('clockCanvas');
     const clockCtx = clockCanvas.getContext('2d');
     const clockBadge = document.getElementById('clockBadge');
@@ -1255,7 +1213,7 @@
     clockCanvas.addEventListener('touchmove', drawClock, { passive: false });
     window.addEventListener('touchend', stopClockDraw);
 
-    // 6. Naming
+    // 7. Naming
     function setDirect(key, val, btn) {
       assessmentScores[key] = val;
       const parent = btn.parentElement;
@@ -1282,7 +1240,7 @@
       updateLiveScoreDisplay();
     }
 
-    // 7. TTS Helper
+    // 8. TTS Helper
     function getThaiVoice() {
       if (!('speechSynthesis' in window)) return null;
       const voices = window.speechSynthesis.getVoices();
@@ -1291,7 +1249,7 @@
              voices.find(v => v.name.toLowerCase().includes('thai')) || null;
     }
 
-    // 8. Memory Registration
+    // 9. Memory Registration
     const memoryWordList = ["ใบหน้า", "ผ้าไหม", "วัด", "มะลิ", "สีแดง"];
     let isSpeaking = false;
 
@@ -1348,7 +1306,7 @@
       text.innerText = "กดเพื่อฟังเสียงอ่านอีกรอบ";
     }
 
-    // 9. Attention - Digits
+    // 10. Attention - Digits
     const digitData = {
       fwd: { sequence: ["2", "1", "8", "5", "4"], targetText: "21854" },
       bwd: { sequence: ["7", "4", "2"], targetText: "247" }
@@ -1452,7 +1410,7 @@
       updateLiveScoreDisplay();
     }
 
-    // 10. Tapping (เคาะตามจังหวะ)
+    // 11. Tapping (เคาะตามจังหวะ)
     const DIGIT_SEQUENCE = "52139411806215194511141905112".split("");
     let currentSequenceIndex = -1, tapCountInCurrentDigit = 0, isPlayingTap = false;
     let statsCorrect = 0, statsFalseAlarm = 0, statsMissed = 0;
@@ -1548,7 +1506,7 @@
       updateLiveScoreDisplay();
     }
 
-    // 11. Serial 7s
+    // 12. Serial 7s
     const standardAnswers = [93, 86, 79, 72, 65];
     let userResults = [null, null, null, null, null];
 
@@ -1620,7 +1578,7 @@
       updateLiveScoreDisplay();
     }
 
-    // 12. Sentences (ทวนประโยคยาว)
+    // 13. Sentences (ทวนประโยคยาว)
     const sentenceTargets = {
       1: "ฉันรู้ว่าจอมเป็นคนเดียวที่มาช่วยงานในวันนี้",
       2: "แมวมักซ่อนตัวอยู่หลังเก้าอี้เมื่อมีหมาอยู่ในห้อง"
@@ -1684,7 +1642,7 @@
       rec.start();
     }
 
-    // 13. Verbal Fluency (ตัวอักษร ก)
+    // 14. Verbal Fluency (ตัวอักษร ก)
     let fluencyTimerInterval = null, fluencyTimeLeft = 60, fluencyRec = null, isFluencyRunning = false;
     let recordedWordsSet = new Set(), processedWordsHistory = new Set();
 
@@ -1773,7 +1731,7 @@
       }, 1000);
     }
 
-    // 14. Abstraction Voice
+    // 15. Abstraction Voice
     const abstractKeywords = {
       1: ["ยานพาหนะ", "พาหนะ", "เดินทาง", "ขนส่ง", "คมนาคม", "เครื่องสัญจร", "เครื่องขับขี่", "โดยสาร", "รถ"],
       2: ["เครื่องมือวัด", "อุปกรณ์วัด", "เครื่องวัด", "การวัด", "ใช้วัด", "ตวงวัด", "วัดค่า", "บอกปริมาณ", "มาตราวัด", "วัด"]
@@ -1826,7 +1784,7 @@
       updateLiveScoreDisplay();
     }
 
-    // 15. Delayed Recall Voice Test (ก. ทวนคำศัพท์ 5 คำ - ระบบ Longest-Match + คำพูดต่อเนื่อง)
+    // 16. Delayed Recall Voice Test
     const targetMemoryMap = {
       "ใบหน้า": ["ใบหน้า", "หน้า"],
       "ผ้าไหม": ["ผ้าไหม", "ผ้าไม"],
@@ -1840,7 +1798,6 @@
     let recallRec = null;
     let isRecallRunning = false;
     let recalledCorrectSet = new Set();
-    let recognizedSpokenList = [];
 
     function startRecallVoiceTest() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1853,11 +1810,9 @@
         return;
       }
 
-      // รีเซ็ตค่าเริ่มต้น
       clearInterval(recallTimerInterval);
       recallTimeLeft = 60;
       recalledCorrectSet.clear();
-      recognizedSpokenList = [];
       isRecallRunning = true;
 
       document.getElementById('recallTimer').innerText = recallTimeLeft;
@@ -1896,7 +1851,6 @@
 
       recallRec.start();
 
-      // จับเวลาถอยหลัง 60 วินาที
       recallTimerInterval = setInterval(() => {
         recallTimeLeft--;
         document.getElementById('recallTimer').innerText = recallTimeLeft;
@@ -1907,7 +1861,6 @@
       }, 1000);
     }
 
-    // ระบบสแกนคำแบบเรียงลำดับความยาว (Longest First) ป้องกันการจับเศษคำสั้น
     function processRecallSpokenStream(rawStream) {
       if (!rawStream || !rawStream.trim()) return;
 
@@ -1915,10 +1868,8 @@
       const placeholder = document.getElementById('emptyRecallPlaceholder');
       if (placeholder) placeholder.remove();
 
-      // ทำความสะอาดข้อความคงช่องว่างไว้สำหรับการแบ่งท่อนเสียง
       const cleanSpoken = rawStream.replace(/[^\u0E00-\u0E7F\s]/g, '');
 
-      // 1. เรียงลำดับคำค้นหาตามความยาวจากมากไปน้อย (ป้องกัน "ใบ" แย่ง "ใบหน้า")
       const searchEntries = [];
       Object.keys(targetMemoryMap).forEach(standardWord => {
         targetMemoryMap[standardWord].forEach(alias => {
@@ -1927,12 +1878,10 @@
       });
       searchEntries.sort((a, b) => b.length - a.length);
 
-      // 2. สแกนหาคำที่สมบูรณ์ที่สุด
       searchEntries.forEach(({ standardWord, alias }) => {
         if (cleanSpoken.includes(alias) && !recalledCorrectSet.has(standardWord)) {
           recalledCorrectSet.add(standardWord);
 
-          // สร้าง Chip สีเขียวเฉพาะคำหลักมาตรฐาน 5 คำ
           const chip = document.createElement('span');
           chip.className = 'inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs sm:text-sm font-black bg-emerald-100 text-emerald-800 border-2 border-emerald-400 shadow-sm animate-pulse';
           chip.innerHTML = `✓ ${standardWord}`;
@@ -1940,7 +1889,6 @@
         }
       });
 
-      // 3. อัปเดตคะแนนสด
       const score = recalledCorrectSet.size;
       document.getElementById('validRecallCount').innerText = score;
       assessmentScores.delayedRecall = score;
@@ -1982,7 +1930,7 @@
       updateLiveScoreDisplay();
     }
 
-// ================= 16. Orientation Logic (ความเร็วเสียงคำถาม 0.56) =================
+    // 17. Orientation Logic
     const oriQuestions = {
       date: "วันนี้ วันที่เท่าไหร่คะ",
       month: "ตอนนี้ เดือนอะไรคะ",
@@ -2019,7 +1967,6 @@
       ["ธันวา", "ธันวาคม"]
     ];
 
-    // ฟังก์ชันอ่านคำถามด้วยความเร็ว 0.56
     function playOriQuestion(type) {
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
@@ -2027,7 +1974,7 @@
       const questionText = oriQuestions[type] || "";
       const u = new SpeechSynthesisUtterance(questionText);
       u.lang = 'th-TH';
-      u.rate = 0.56; // 👈 ปรับความเร็วในการพูดที่ 0.56
+      u.rate = 0.56;
       
       const v = getThaiVoice();
       if (v) u.voice = v;
@@ -2082,139 +2029,4 @@
       else if (type === 'month') {
         const curMonthIdx = now.getMonth();
         const validMonths = thaiMonths[curMonthIdx];
-        isCorrect = validMonths.some(m => clean.includes(m)) || digitsOnly === (curMonthIdx + 1).toString();
-      } 
-      else if (type === 'year') {
-        const curYearBE = (now.getFullYear() + 543).toString();
-        const shortBE = curYearBE.slice(-2);
-        isCorrect = (digitsOnly === curYearBE || digitsOnly === shortBE || clean.includes(curYearBE) || clean.includes(shortBE));
-      } 
-      else if (type === 'day') {
-        const curDayIdx = now.getDay();
-        const validDays = thaiDays[curDayIdx];
-        isCorrect = validDays.some(d => clean.includes(d));
-      } 
-      else if (type === 'place') {
-        const invalidAnswers = ["ไม่รู้", "จำไม่ได้", "ลืม", "ไม่ทราบ", "ไม่มี"];
-        const isRefusal = invalidAnswers.some(w => clean.includes(w));
-        isCorrect = clean.length >= 2 && !isRefusal;
-      } 
-      else if (type === 'province') {
-        isCorrect = clean.includes("ชุมพร") || clean.includes("จุมพร");
-      }
-
-      const score = isCorrect ? 1 : 0;
-      oriScores[type] = score;
-
-      const ansElem = document.getElementById(`ori-ans-${type}`);
-      const badgeElem = document.getElementById(`ori-badge-${type}`);
-
-      if (ansElem) {
-        ansElem.innerHTML = `พูดว่า: <b class="${isCorrect ? 'text-emerald-700 font-bold' : 'text-slate-700'}">"${spoken}"</b>`;
-      }
-      if (badgeElem) {
-        badgeElem.textContent = `${score} แต้ม`;
-        badgeElem.className = isCorrect 
-          ? 'text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-700' 
-          : 'text-[10px] px-2 py-0.5 rounded-md font-bold bg-rose-100 text-rose-700';
-      }
-
-      const totalOri = Object.values(oriScores).reduce((a, b) => a + b, 0);
-      assessmentScores.orientation = totalOri;
-
-      const totalBadge = document.getElementById('orientationTotalBadge');
-      if (totalBadge) {
-        totalBadge.textContent = `แต้ม ${totalOri}/6 คะแนน`;
-        totalBadge.className = totalOri > 0 
-          ? 'text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full' 
-          : 'text-xs font-bold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full border border-slate-300';
-      }
-
-      updateLiveScoreDisplay();
-    }
-
-    // 17. Final Evaluation
-    function processFinalEvaluation() {
-      const name = document.getElementById('patientName').value.trim() || "ไม่ระบุชื่อ";
-      const age = parseInt(document.getElementById('patientAge').value) || 60;
-      const isLowEdu = document.querySelector('input[name="eduLevel"]:checked').value === "le6";
-
-      const raw = calculateRawTotal();
-      const bonus = (isLowEdu && raw < 30) ? 1 : 0;
-      const finalScore = Math.min(30, raw + bonus);
-
-      let triage = "Green", statusText = "🟢 ปกติ (Normal)", icon = "🟢", intervalMonths = 6;
-      if (finalScore <= 17) {
-        triage = "Red"; statusText = "🔴 เสี่ยงภาวะสมองเสื่อม (High Risk)"; icon = "🔴"; intervalMonths = 1;
-      } else if (finalScore <= 25) {
-        triage = "Yellow"; statusText = "🟡 เสี่ยงรู้คิดบกพร่องเล็กน้อย (MCI)"; icon = "🟡"; intervalMonths = 3;
-      }
-
-      const nextDue = new Date();
-      nextDue.setMonth(nextDue.getMonth() + intervalMonths);
-      const nextDueStr = nextDue.toISOString().split('T')[0];
-
-      finalPayload = { name, age, rawScore: raw, finalScore, eduBonus: bonus, triage, statusText, nextDueDate: nextDueStr, domainBreakdown: assessmentScores };
-
-      document.getElementById('resIcon').innerText = icon;
-      document.getElementById('resName').innerText = name;
-      document.getElementById('resScore').innerText = `${finalScore} / 30 คะแนน`;
-      document.getElementById('resEduBonus').innerText = `+${bonus} คะแนน (${isLowEdu ? '<= 6 ปี' : '> 6 ปี'})`;
-      document.getElementById('resStatus').innerText = statusText;
-      document.getElementById('resDueDate').innerText = nextDueStr;
-
-      goToPage('Result');
-    }
-
-   // 18. Submit Backend & แจ้งเตือนเข้าห้องแชท LINE
-    async function submitToBackend() {
-      // 1. บันทึกข้อมูลขึ้น Google Sheets
-      if (navigator.onLine && BACKEND_API_URL.startsWith("https://script.google.com")) {
-        try {
-          await fetch(BACKEND_API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(finalPayload)
-          });
-        } catch (e) {
-          console.error("บันทึกออนไลน์ไม่สำเร็จ:", e);
-        }
-      }
-
-      // 2. ส่งข้อความแจ้งเตือนสรุปผลกลับเข้าห้องแชท LINE
-      if (typeof liff !== "undefined" && liff.isInClient()) {
-        const msgText = 
-`🧠 ผลการประเมิน MoCA (ฮักสมอง)
-━━━━━━━━━━━━━━━
-👤 ผู้รับการตรวจ: ${finalPayload.name}
-🎂 อายุ: ${finalPayload.age} ปี
-📊 คะแนนสุทธิ: ${finalPayload.finalScore} / 30 คะแนน
-(คะแนนดิบ: ${finalPayload.rawScore} | ปรับการศึกษา: +${finalPayload.eduBonus})
-🩺 การแปลผล: ${finalPayload.statusText}
-📅 วันนัดประเมินซ้ำ: ${finalPayload.nextDueDate}
-━━━━━━━━━━━━━━━
-💾 บันทึกผลเข้าสู่ระบบเรียบร้อยแล้ว`;
-
-        try {
-          await liff.sendMessages([
-            {
-              type: 'text',
-              text: msgText
-            }
-          ]);
-        } catch (err) {
-          console.warn("ส่งข้อความเข้าแชทไม่สำเร็จ:", err);
-        }
-
-        // ปิดหน้าต่าง LIFF กลับเข้าห้องแชท
-        liff.closeWindow();
-      } else {
-        alert("บันทึกข้อมูลเรียบร้อยแล้ว");
-        goToPage(1);
-      }
-    }
-    
-  </script>
-</body>
-</html>
+        isCorrect = validMonths.some(m => clean.includes(m)) || digitsOnly === (curMonth

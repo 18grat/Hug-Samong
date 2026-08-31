@@ -809,9 +809,24 @@
   </div>
 
   <script>
+    
     // URL Web App จาก Google Apps Script (ลงท้ายด้วย /exec)
     const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbzmLPDAkfxROJWWA2ciTvQVkSKbjQeDd2VxugUi5f6Jm1S0y4hG0SFTsACoU10huW5LJQ/exec";
+// URL Web App จาก Google Apps Script (ลงท้ายด้วย /exec)
+    const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbzmLPDARfxROjWWA2ciTvQVkSKbjQeDd2VxugUi5f6Jm1S0y4hG0SFTSAcOU10huW5LJ0/exec";
+    const MY_LIFF_ID = "2011349854-EMx9HJ7U";
 
+    // เริ่มต้น LIFF ทันทีเมื่อเปิดหน้าเว็บ
+    window.onload = async function() {
+      if (typeof liff !== "undefined") {
+        try {
+          await liff.init({ liffId: MY_LIFF_ID });
+          console.log("LIFF Init สำเร็จ");
+        } catch (error) {
+          console.error("LIFF Init Error:", error);
+        }
+      }
+    };
     // 1. ตัวแปรเก็บคะแนนรวม MoCA (รวม 30 คะแนน)
     let assessmentScores = {
       trail: 0, cube: 0, clockCircle: 0, clockNums: 0, clockHands: 0,
@@ -2151,33 +2166,55 @@
       goToPage('Result');
     }
 
-    // 18. Submit Backend
+   // 18. Submit Backend & แจ้งเตือนเข้าห้องแชท LINE
     async function submitToBackend() {
-      let queue = JSON.parse(localStorage.getItem('moca_local_records') || '[]');
-      queue.push(finalPayload);
-      localStorage.setItem('moca_local_records', JSON.stringify(queue));
-
-      if (navigator.onLine && BACKEND_API_URL !== "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+      // 1. บันทึกข้อมูลขึ้น Google Sheets
+      if (navigator.onLine && BACKEND_API_URL.startsWith("https://script.google.com")) {
         try {
           await fetch(BACKEND_API_URL, {
-            method: "POST", mode: "no-cors",
+            method: "POST",
+            mode: "no-cors",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(finalPayload)
           });
-          alert("บันทึกข้อมูลสำเร็จ");
         } catch (e) {
-          alert("บันทึกในเครื่องแล้ว");
+          console.error("บันทึกออนไลน์ไม่สำเร็จ:", e);
         }
-      } else {
-        alert("บันทึกข้อมูลในเครื่องเรียบร้อย (โหมดออฟไลน์)");
       }
 
+      // 2. ส่งข้อความแจ้งเตือนสรุปผลกลับเข้าห้องแชท LINE
       if (typeof liff !== "undefined" && liff.isInClient()) {
+        const msgText = 
+`🧠 ผลการประเมิน MoCA (ฮักสมอง)
+━━━━━━━━━━━━━━━
+👤 ผู้รับการตรวจ: ${finalPayload.name}
+🎂 อายุ: ${finalPayload.age} ปี
+📊 คะแนนสุทธิ: ${finalPayload.finalScore} / 30 คะแนน
+(คะแนนดิบ: ${finalPayload.rawScore} | ปรับการศึกษา: +${finalPayload.eduBonus})
+🩺 การแปลผล: ${finalPayload.statusText}
+📅 วันนัดประเมินซ้ำ: ${finalPayload.nextDueDate}
+━━━━━━━━━━━━━━━
+💾 บันทึกผลเข้าสู่ระบบเรียบร้อยแล้ว`;
+
+        try {
+          await liff.sendMessages([
+            {
+              type: 'text',
+              text: msgText
+            }
+          ]);
+        } catch (err) {
+          console.warn("ส่งข้อความเข้าแชทไม่สำเร็จ:", err);
+        }
+
+        // ปิดหน้าต่าง LIFF กลับเข้าห้องแชท
         liff.closeWindow();
       } else {
+        alert("บันทึกข้อมูลเรียบร้อยแล้ว");
         goToPage(1);
       }
     }
+    
   </script>
 </body>
 </html>

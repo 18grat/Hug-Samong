@@ -111,7 +111,8 @@
               <p class="text-xs font-bold text-slate-700">ก. ลากเส้นต่อจุดสลับ (1 ➔ ก ➔ 2 ➔ ข...)</p>
               <button type="button" onclick="playVoicePrompt('ข้อ กอ, ลากเส้นต่อจุดสลับกันนะคะ, เริ่มจาก เลขหนึ่ง, ไป กอไก่, ไป เลขสอง, ไป ขอไข่, สลับกันไปเรื่อยๆ จนถึง จอจาน ค่ะ')" class="voice-btn text-amber-600 bg-amber-50 p-1 rounded-full border border-amber-200 text-xs">🔊</button>
             </div>
-            <span id="trailBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors">
+            <!-- เพิ่ม onclick และปรับค่าเริ่มต้นเป็นสีแดง 0/1 แต้ม -->
+            <span id="trailBadge" title="แตะเพื่อสลับคะแนน ผ่าน/ไม่ผ่าน" onclick="toggleTrailScore()" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700 transition-colors cursor-pointer border border-rose-300">
               0 / 1 แต้ม
             </span>
           </div>
@@ -124,11 +125,11 @@
             </button>
           </div>
 
-          <p id="trailHint" class="text-[11px] text-slate-500 text-center">เริ่มลากจาก "1" ไป "ก" จนถึง "จ"</p>
+          <p id="trailHint" class="text-[11px] text-slate-500 text-center">เริ่มลากจาก "1" ไป "ก" จนถึง "จ" (แตะที่ปุ่มคะแนนด้านบนเพื่อปรับสถานะได้)</p>
         </div>
 
         <!-- 1.2 วาดรูปลูกบาศก์ 3 มิติ (Cube) -->
-        <div class="border-t pt-3 space-y-2">
+        <div class="border-t pt-3 space-y-2.5">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-1.5">
               <div>
@@ -137,37 +138,37 @@
               </div>
               <button type="button" onclick="playVoicePrompt('ข้อ ขอ, ให้วาดภาพกล่องสามมิติตามภาพตัวอย่างด้านซ้ายมือ, ลงในช่องว่างด้านขวามือ, ต้องวาดให้เห็นเป็นกล่องสามมิติ มีมุมเชื่อมกันครบทุกมุมนะคะ')" class="voice-btn text-amber-600 bg-amber-50 p-1 rounded-full border border-amber-200 text-xs">🔊</button>
             </div>
-            <button type="button" id="cubeBadge" onclick="toggleCubeScore()" title="แตะเพื่อปรับคะแนนเองได้" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors cursor-pointer border border-slate-300">
+            <span id="cubeBadge" title="แตะเพื่อปรับคะแนนเองได้" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors cursor-pointer border border-slate-300">
               0 / 1 แต้ม
-            </button>
+            </span>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <div class="border-2 border-slate-300 rounded-2xl p-2 bg-white flex flex-col items-center justify-between shadow-sm min-h-[160px]">
-              <span class="text-[10px] font-extrabold text-slate-800 mb-1">📐 ภาพตัวอย่าง</span>
-              <svg viewBox="0 0 160 150" width="120" height="110" class="my-auto">
-                <rect x="25" y="55" width="70" height="70" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                <polygon points="25,55 60,20 130,20 95,55" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                <polygon points="95,55 130,20 130,90 95,125" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                <line x1="25" y1="125" x2="60" y2="90" stroke="#000000" stroke-width="3" stroke-linecap="round" />
-                <line x1="60" y1="90" x2="130" y2="90" stroke="#000000" stroke-width="3" stroke-linecap="round" />
-                <line x1="60" y1="20" x2="60" y2="90" stroke="#000000" stroke-width="3" stroke-linecap="round" />
-              </svg>
-              <span class="text-[9px] text-slate-500 font-bold">วาดตามรูปทรงนี้</span>
-            </div>
+          <!-- ภาพตัวอย่างด้านบน -->
+          <div class="border-2 border-slate-300 rounded-2xl p-2.5 bg-white flex items-center justify-center gap-3 shadow-sm">
+            <span class="text-xs font-extrabold text-slate-800">📐 ภาพตัวอย่าง:</span>
+            <svg viewBox="0 0 160 150" width="85" height="75">
+              <rect x="25" y="55" width="70" height="70" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              <polygon points="25,55 60,20 130,20 95,55" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              <polygon points="95,55 130,20 130,90 95,125" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              <line x1="25" y1="125" x2="60" y2="90" stroke="#000000" stroke-width="3" stroke-linecap="round" />
+              <line x1="60" y1="90" x2="130" y2="90" stroke="#000000" stroke-width="3" stroke-linecap="round" />
+              <line x1="60" y1="20" x2="60" y2="90" stroke="#000000" stroke-width="3" stroke-linecap="round" />
+            </svg>
+            <span class="text-[10px] text-slate-500 font-bold">วาดตามรูปทรงนี้</span>
+          </div>
 
-            <div class="border-2 border-dashed border-sky-300 rounded-2xl relative bg-sky-50/40 p-1 min-h-[160px]" style="touch-action: none;">
-              <canvas id="cubeCanvas" width="300" height="260" class="w-full h-full bg-white rounded-xl shadow-inner block" style="touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair;"></canvas>
+            <!-- ช่องวาดรูป (Canvas) ปรับความสูง h-[260px] และขนาด width/height ให้เท่ากับข้อ ค ทุกประการ -->
+          <div class="border-2 border-dashed border-sky-300 rounded-2xl relative bg-sky-50/40 p-1 min-h-[260px]">
+            <canvas id="cubeCanvas" width="340" height="260" class="w-full h-full bg-white rounded-xl shadow-inner block" style="touch-action: none; -webkit-user-select: none; user-select: none; cursor: crosshair;"></canvas>
 
-              <button type="button" onclick="clearCubeCanvas()" class="absolute bottom-2 right-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md border shadow-sm z-10">
-                🔄 ล้าง
-              </button>
-            </div>
+            <button type="button" onclick="clearCubeCanvas()" class="absolute bottom-2 right-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-md border shadow-sm z-10">
+              🔄 ล้าง
+            </button>
           </div>
 
           <div id="cubeAnalysisBox" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center transition-all space-y-1">
             <p id="cubeHint" class="text-xs text-slate-600 font-medium">
-              ✏️ ใช้นิ้ววาดลูกบาศก์ 3 มิติลงในช่องขวา (เส้นต้องเชื่อมกันทุกมุม)
+              ✏️ ใช้นิ้ววาดลูกบาศก์ 3 มิติลงในช่องด้านล่าง (เส้นต้องเชื่อมกันทุกมุม)
             </p>
             <div id="cubeReason" class="text-[11px] text-slate-500 font-normal"></div>
           </div>
@@ -233,7 +234,7 @@
           </div>
 
           <div class="flex justify-center bg-white p-2 rounded-xl border border-slate-200">
-            <img src="lion.jpg" alt="สัตว์ตัวที่ 1" class="h-32 object-contain rounded-lg shadow-inner">
+            <img src="image/lion.jpg" alt="สัตว์ตัวที่ 1" class="h-32 object-contain rounded-lg shadow-inner">
           </div>
 
           <div class="grid grid-cols-2 gap-2">
@@ -260,7 +261,7 @@
           </div>
 
           <div class="flex justify-center bg-white p-2 rounded-xl border border-slate-200">
-            <img src="rhino.jpg" alt="สัตว์ตัวที่ 2" class="h-32 object-contain rounded-lg shadow-inner">
+            <img src="image/rhino.jpg" alt="สัตว์ตัวที่ 2" class="h-32 object-contain rounded-lg shadow-inner">
           </div>
 
           <div class="grid grid-cols-2 gap-2">
@@ -287,7 +288,7 @@
           </div>
 
           <div class="flex justify-center bg-white p-2 rounded-xl border border-slate-200">
-            <img src="camel.jpg" alt="สัตว์ตัวที่ 3" class="h-32 object-contain rounded-lg shadow-inner">
+            <img src="image/camel.jpg" alt="สัตว์ตัวที่ 3" class="h-32 object-contain rounded-lg shadow-inner">
           </div>
 
           <div class="grid grid-cols-2 gap-2">
@@ -936,36 +937,118 @@
 
         <div class="flex gap-2 pt-2">
           <button onclick="goToPage(6)" class="btn-touch w-1/3 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl">ย้อนกลับ</button>
-          <button onclick="processFinalEvaluation()" class="btn-touch w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm py-3 rounded-xl shadow-lg">
-            📊 คำนวณและสรุปผลตรวจ
+          <!-- ปรับให้วิ่งไปหน้า 8 (แบบประเมินภาวะซึมเศร้า TGDS-15) -->
+          <button onclick="goToPage(8)" class="btn-touch w-2/3 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl shadow">ถัดไป: แบบประเมินซึมเศร้า (TGDS) ➔</button>
+        </div>
+      </div>
+
+        <!-- ================= หน้า 8: คัดกรองภาวะซึมเศร้า (TGDS-15) ================= -->
+      <div id="page8" class="moca-screen hidden space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-base font-bold text-slate-800">8. คัดกรองภาวะซึมเศร้า (TGDS-15)</h2>
+            <button type="button" onclick="playVoicePrompt('แบบประเมินภาวะซึมเศร้าสิบห้าข้อในรูปแบบตารางนะคะ, ในหนึ่งสัปดาห์ที่ผ่านมา ท่านมีความรู้สึกตามข้อความเหล่านี้หรือไม่ เลือกตอบ ใช่ หรือ ไม่ใช่ ค่ะ')" class="voice-btn text-amber-600 bg-amber-50 p-1 rounded-full border border-amber-200 text-xs">🔊</button>
+          </div>
+          <span id="tgdsTotalBadge" class="text-xs text-sky-600 font-bold bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">คะแนน: 0/15</span>
+        </div>
+
+        <p class="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+          💡 <strong>คำชี้แจง:</strong> ในช่วง 1 สัปดาห์ที่ผ่านมาจนถึงปัจจุบัน ท่านรู้สึกหรือปฏิบัติเช่นนี้หรือไม่
+        </p>
+
+        <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white max-h-[380px] overflow-y-auto">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-100 text-slate-700 text-xs sticky top-0 z-10 border-b border-slate-200">
+              <tr>
+                <th class="p-2.5 text-center w-10">ข้อ</th>
+                <th class="p-2.5">ข้อความคำถาม</th>
+                <th class="p-2.5 text-center w-16">ใช่</th>
+                <th class="p-2.5 text-center w-16">ไม่ใช่</th>
+              </tr>
+            </thead>
+            <tbody id="tgdsTableBody" class="divide-y divide-slate-100 text-xs text-slate-700">
+              <!-- สร้างอัตโนมัติด้วย JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex gap-2 pt-2 border-t">
+          <button onclick="goToPage(7)" class="btn-touch w-1/3 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl">ย้อนกลับ</button>
+          <button onclick="goToPage(9)" class="btn-touch w-2/3 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl shadow">ถัดไป: กิจวัตรประจำวัน (ADL) ➔</button>
+        </div>
+      </div>
+
+      <!-- ================= หน้า 9: กิจวัตรประจำวัน (Barthel ADL Index) ================= -->
+      <div id="page9" class="moca-screen hidden space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-base font-bold text-slate-800">9. กิจวัตรประจำวัน (ADL)</h2>
+            <button type="button" onclick="playVoicePrompt('แบบประเมินกิจวัตรประจำวัน หรือ เอดีแอล นะคะ, ประเมินความสามารถในการทำกิจวัตรพื้นฐานสิบด้านค่ะ')" class="voice-btn text-amber-600 bg-amber-50 p-1 rounded-full border border-amber-200 text-xs">🔊</button>
+          </div>
+          <span id="adlTotalBadge" class="text-xs text-sky-600 font-bold bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">คะแนน: 0/20</span>
+        </div>
+
+        <p class="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+          💡 <strong>คำชี้แจง:</strong> ประเมินความสามารถในการทำกิจวัตรประจำวันในช่วงสัปดาห์ที่ผ่านมา (เต็ม 20 คะแนน)
+        </p>
+
+        <div id="adlContainer" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+          <!-- สร้างอัตโนมัติด้วย JavaScript -->
+        </div>
+
+        <div class="flex gap-2 pt-2 border-t">
+          <button onclick="goToPage(8)" class="btn-touch w-1/3 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl">ย้อนกลับ</button>
+          <button onclick="finalizeAndSubmitAll()" class="btn-touch w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm py-3 rounded-xl shadow-lg">
+            💾 คำนวณและบันทึกผลทั้งหมด ➔
           </button>
         </div>
       </div>
 
-      <!-- ================= หน้าสรุปผล (Result Screen) ================= -->
+      <!-- ================= หน้าสรุปผล (Result Screen & บันทึกข้อมูล) ================= -->
       <div id="pageResult" class="moca-screen hidden space-y-4 text-center py-2">
-        <span id="resIcon" class="text-6xl">🟢</span>
-        <h2 id="resStatus" class="text-xl font-black text-slate-800">ปกติ (Normal)</h2>
+        <div class="flex items-center justify-center gap-2">
+          <span id="resIcon" class="text-4xl">🟢</span>
+          <h2 id="resStatus" class="text-lg sm:text-xl font-black text-slate-800">ปกติ (Normal)</h2>
+        </div>
 
-        <div class="bg-slate-50 p-4 rounded-2xl text-left text-sm space-y-2.5 border">
-          <div class="flex justify-between"><span class="text-slate-500">ผู้รับการประเมิน:</span><strong id="resName" class="text-slate-800">-</strong></div>
+        <!-- กล่องสรุปผลการประเมินทุกชุด -->
+        <div class="bg-slate-50 p-4 rounded-2xl text-left text-xs sm:text-sm space-y-2 border border-slate-200 shadow-sm">
+          <div class="flex justify-between border-b pb-1.5"><span class="text-slate-500">ผู้รับการประเมิน:</span><strong id="resName" class="text-slate-800">-</strong></div>
           <div class="flex justify-between"><span class="text-slate-500">เบอร์โทรศัพท์:</span><span id="resPhone" class="text-slate-700 font-medium">-</span></div>
           <div class="flex justify-between"><span class="text-slate-500">ที่อยู่:</span><span id="resAddress" class="text-slate-700 font-medium text-right max-w-[60%] truncate">-</span></div>
-          <div class="flex justify-between"><span class="text-slate-500">คะแนนสุทธิ (MoCA):</span><strong id="resScore" class="text-sky-700 text-lg">0 / 30</strong></div>
-          <div class="flex justify-between text-xs text-slate-500"><span>แต้มปรับการศึกษา:</span><span id="resEduBonus">+0 คะแนน</span></div>
+          
+          <div class="bg-sky-50 border border-sky-200 p-2.5 rounded-xl space-y-1 mt-2">
+            <p class="text-xs font-bold text-sky-900 border-b border-sky-200 pb-1">📊 สรุปผลคะแนนการประเมิน:</p>
+            <div class="flex justify-between"><span class="text-slate-600">🧠 สมอง (MoCA):</span><strong id="resScore" class="text-sky-700">0 / 30 คะแนน</strong></div>
+            <div class="flex justify-between"><span class="text-slate-600">💙 ซึมเศร้า (TGDS-15):</span><strong id="resTgdsScore" class="text-sky-700">0 / 15 คะแนน</strong></div>
+            <div class="flex justify-between"><span class="text-slate-600">🏃‍♂️ กิจวัตร (ADL):</span><strong id="resAdlScore" class="text-sky-700">0 / 20 คะแนน</strong></div>
+          </div>
+
+          <div class="flex justify-between text-xs text-slate-500 pt-1"><span>แต้มปรับการศึกษา (MoCA):</span><span id="resEduBonus">+0 คะแนน</span></div>
           <div class="flex justify-between text-xs text-slate-500 border-t pt-2"><span>วันนัดประเมินซ้ำ:</span><strong id="resDueDate" class="text-slate-700">-</strong></div>
         </div>
 
-        <button onclick="submitToBackend()" class="btn-touch w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-2xl shadow">
-          💾 บันทึกผลเข้าสู่ระบบส่วนกลาง
-        </button>
+        <!-- ปุ่มดำเนินการส่วนท้ายหน้าสรุป -->
+        <div class="space-y-2 pt-1">
+          <button type="button" onclick="finalizeAndSubmitAll()" class="btn-touch w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm py-3.5 rounded-2xl shadow-lg flex items-center justify-center gap-1.5">
+            <span>💾</span> บันทึกข้อมูลและยืนยันผลตรวจ
+          </button>
+          
+          <button type="button" onclick="goToPage(1)" class="btn-touch w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 rounded-2xl text-xs">
+            🔄 เริ่มทำแบบประเมินรายใหม่
+          </button>
+        </div>
       </div>
 
-    </div>
-
-  </div>
-
   <script>
+    // ฟังก์ชันคำนวณผลลัพธ์ทุกชุด ประมวลผลหน้าสรุป และบันทึกข้อมูลเข้า Backend ทันที
+    function finalizeAndSubmitAll() {
+      // เรียกฟังก์ชันประมวลผลหน้าสรุปเดิม เพื่อคำนวณคะแนน MoCA, TGDS, ADL และแสดงผลสีสถานะ
+      processAllEvaluationsFinal();
+
+      // สั่งบันทึกข้อมูลทั้งหมดเข้าสู่ระบบ (Google Sheets / LocalStorage) ทันที
+      submitToBackend();
+    }
     // URL Web App จาก Google Apps Script (ลงท้ายด้วย /exec)
     const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbzmLPDAkfxROJWWA2ciTvQVkSKbjQeDd2VxugUi5f6Jm1S0y4hG0SFTsACoU10huW5LJQ/exec";
 
@@ -974,7 +1057,7 @@
       if (!('speechSynthesis' in window)) return null;
       const voices = window.speechSynthesis.getVoices();
       return voices.find(v => (v.lang === 'th-TH' || v.lang === 'th_TH') && 
-                              (v.name.includes('Natural') || v.name.includes('Online') || v.name.includes('Neural') || v.name.includes('Google') || v.name.includes('Premwadee') || v.name.includes('Niwat'))) ||
+                            (v.name.includes('Natural') || v.name.includes('Online') || v.name.includes('Neural') || v.name.includes('Google') || v.name.includes('Premwadee') || v.name.includes('Niwat'))) ||
              voices.find(v => v.lang === 'th-TH' || v.lang === 'th_TH' || v.lang.startsWith('th')) ||
              voices.find(v => v.name.toLowerCase().includes('thai') || v.name.toLowerCase().includes('siri')) ||
              null;
@@ -1307,6 +1390,10 @@
     let cubeStrokes = [];
     let currentCubeStroke = [];
 
+    function redrawCubeCanvas() {
+      // สำหรับรีเฟรชแคนวาสถ้าจำเป็น
+    }
+
     function getCubePos(e) {
       const rect = cubeCanvas.getBoundingClientRect();
       const scaleX = cubeCanvas.width / rect.width;
@@ -1474,28 +1561,9 @@
         cubeBadge.textContent = '0 / 1 แต้ม';
         cubeBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700 transition-colors border border-rose-300';
         cubeHint.innerHTML = '⚠️ <strong class="text-rose-600">ยังไม่ผ่าน (0 แต้ม)</strong>';
-        cubeReason.innerHTML = `<span class="text-rose-600">เหตุผล: ${reasonText} (แตะที่คะแนนเพื่อปรับแก้ได้)</span>`;
+        cubeReason.innerHTML = `<span class="text-rose-600">เหตุผล: ${reasonText}</span>`;
         cubeAnalysisBox.className = 'bg-rose-50 border border-rose-200 rounded-xl p-2.5 text-center transition-all space-y-1';
       }
-
-      updateLiveScoreDisplay();
-    }
-
-    function toggleCubeScore() {
-      assessmentScores.cube = assessmentScores.cube === 1 ? 0 : 1;
-      const isPass = assessmentScores.cube === 1;
-
-      cubeBadge.textContent = isPass ? '1 / 1 แต้ม' : '0 / 1 แต้ม';
-      cubeBadge.className = isPass 
-        ? 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700 transition-colors border border-emerald-300' 
-        : 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700 transition-colors border border-rose-300';
-
-      cubeHint.innerHTML = isPass 
-        ? '✅ <strong class="text-emerald-700">ผู้ประเมินปรับเป็น: ผ่าน (1 แต้ม)</strong>' 
-        : '⚠️ <strong class="text-rose-600">ผู้ประเมินปรับเป็น: ไม่ผ่าน (0 แต้ม)</strong>';
-
-      cubeReason.textContent = "ปรับคะแนนโดยผู้ประเมิน";
-      cubeAnalysisBox.className = isPass ? 'bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center transition-all space-y-1' : 'bg-rose-50 border border-rose-200 rounded-xl p-2.5 text-center transition-all space-y-1';
 
       updateLiveScoreDisplay();
     }
@@ -1506,7 +1574,7 @@
       currentCubeStroke = [];
       cubeBadge.textContent = '0 / 1 แต้ม';
       cubeBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-200 text-slate-600 transition-colors border border-slate-300';
-      cubeHint.textContent = '✏️ ใช้นิ้ววาดลูกบาศก์ 3 มิติลงในช่องขวา (เส้นต้องเชื่อมกันทุกมุม)';
+      cubeHint.textContent = '✏️ ใช้นิ้ววาดลูกบาศก์ 3 มิติลงในช่องด้านล่าง (เส้นต้องเชื่อมกันทุกมุม)';
       cubeReason.textContent = '';
       cubeAnalysisBox.className = 'bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center transition-all space-y-1';
       assessmentScores.cube = 0;
@@ -2151,7 +2219,7 @@
 
     function playSerialQuestion(index, autoMic = false) {
       const baseNum = baseNumbers[index - 1];
-      playVoicePrompt(`นำ ${baseNum} ลบออก เจ็ด เหลือเท่าไหร่คะ`, () => {
+      playVoicePrompt(`นำ ${baseNum} ลบออก เจด เหลือเท่าไหร่คะ`, () => {
         if (autoMic) startSerialVoice(index);
       });
     }
@@ -2884,7 +2952,336 @@
       goToPage('Result');
     }
 
-    // 17. Submit Backend
+    // ข้อมูลคำถาม TGDS-15 และเกณฑ์การให้คะแนน
+    const tgdsData = [
+      { q: "1. ท่านมีความสุขดีกับชีวิตในปัจจุบันหรือไม่?", type: "pos" },
+      { q: "2. ท่านได้ลดกิจกรรมและความสนใจต่างๆ ลงไปมากหรือไม่?", type: "neg" },
+      { q: "3. ท่านรู้สึกว่าชีวิตว่างเปล่าหรือไม่?", type: "neg" },
+      { q: "4. ท่านรู้สึกเบื่อบ่อยๆ หรือไม่?", type: "neg" },
+      { q: "5. ท่านมีอารมณ์ดีส่วนใหญ่ในแต่ละวันหรือไม่?", type: "pos" },
+      { q: "6. ท่านกลัวว่าจะมีเรื่องร้ายๆ เกิดขึ้นกับท่านหรือไม่?", type: "neg" },
+      { q: "7. ท่านรู้สึกมีความสุขเป็นส่วนใหญ่ในชีวิตหรือไม่?", type: "pos" },
+      { q: "8. ท่านรู้สึกว่าตนเองไร้ที่พึ่งบ่อยๆ หรือไม่?", type: "neg" },
+      { q: "9. ท่านชอบอยู่บ้านมากกว่าออกไปข้างนอกหรือทำสิ่งใหม่ๆ หรือไม่?", type: "neg" },
+      { q: "10. ท่านรู้สึกว่าตนเองมีปัญหาเรื่องความจำมากกว่าคนส่วนใหญ่หรือไม่?", type: "neg" },
+      { q: "11. ท่านคิดว่ามีชีวิตอยู่ตอนนี้ช่างน่าชื่นชมหรือไม่?", type: "pos" },
+      { q: "12. ท่านรู้สึกหมดหวังและไร้ค่าในตอนนี้หรือไม่?", type: "neg" },
+      { q: "13. ท่านรู้สึกว่าตนเองมีพลังงานและกระฉับกระเฉงดีหรือไม่?", type: "pos" },
+      { q: "14. ท่านรู้สึกว่าสถานการณ์ของท่านหมดหนทางแก้ไขหรือไม่?", type: "neg" },
+      { q: "15. ท่านคิดว่าคนอื่นดีกว่าหรือโชคดีกว่าท่านหรือไม่?", type: "neg" }
+    ];
+
+    let tgdsScores = new Array(15).fill(0);
+
+    // ฟังก์ชันสร้างแถวตาราง TGDS-15 อัตโนมัติ
+    function initTgdsTable() {
+      const tbody = document.getElementById('tgdsTableBody');
+      if (!tbody || tbody.children.length > 0) return;
+
+      tgdsData.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition-colors";
+        tr.id = `tgds-row-${index}`;
+
+        tr.innerHTML = `
+          <td class="p-2.5 text-center font-bold text-slate-500">${index + 1}</td>
+          <td class="p-2.5">
+            <div class="flex items-center justify-between gap-1">
+              <span>${item.q.replace(/^\d+\.\s*/, '')}</span>
+              <button type="button" onclick="playVoicePrompt('${item.q}')" class="voice-btn text-amber-600 bg-amber-50 p-1 rounded-full border border-amber-200 text-[10px] shrink-0">🔊</button>
+            </div>
+          </td>
+          <td class="p-2.5 text-center">
+            <button type="button" id="tgds-${index}-yes" onclick="answerTgdsTable(${index}, 'yes')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all inline-flex items-center justify-center">
+              /
+            </button>
+          </td>
+          <td class="p-2.5 text-center">
+            <button type="button" id="tgds-${index}-no" onclick="answerTgdsTable(${index}, 'no')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all inline-flex items-center justify-center">
+              /
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function answerTgdsTable(index, choice) {
+      const item = tgdsData[index];
+      let isDepressedPoint = false;
+
+      if (item.type === "pos" && choice === "yes") isDepressedPoint = false;
+      else if (item.type === "pos" && choice === "no") isDepressedPoint = true;
+      else if (item.type === "neg" && choice === "yes") isDepressedPoint = true;
+      else if (item.type === "neg" && choice === "no") isDepressedPoint = false;
+
+      tgdsScores[index] = isDepressedPoint ? 1 : 0;
+
+      // จัดการเปลี่ยนสีปุ่มในตารางให้เห็นชัดเจน
+      const btnYes = document.getElementById(`tgds-${index}-yes`);
+      const btnNo = document.getElementById(`tgds-${index}-no`);
+
+      if (choice === 'yes') {
+        btnYes.className = "w-8 h-8 rounded-lg bg-sky-600 text-white font-bold text-xs shadow-sm transition-all inline-flex items-center justify-center";
+        btnNo.className = "w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all inline-flex items-center justify-center";
+      } else {
+        btnNo.className = "w-8 h-8 rounded-lg bg-sky-600 text-white font-bold text-xs shadow-sm transition-all inline-flex items-center justify-center";
+        btnYes.className = "w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all inline-flex items-center justify-center";
+      }
+
+      calculateTotalTgds();
+    }
+
+    function calculateTotalTgds() {
+      const total = tgdsScores.reduce((a, b) => a + b, 0);
+      assessmentScores.tgds = total; // บันทึกสะสมเข้าระบบรวม
+
+      const badge = document.getElementById('tgdsTotalBadge');
+      if (badge) {
+        badge.textContent = `คะแนน: ${total}/15`;
+        if (total >= 6) {
+          badge.className = "text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 px-2.5 py-1 rounded-full";
+        } else {
+          badge.className = "text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full";
+        }
+      }
+      updateLiveScoreDisplay();
+    }
+
+    // เรียกฟังก์ชันสร้างตารางเมื่อโหลดหน้าเว็บ
+    document.addEventListener("DOMContentLoaded", () => {
+      initTgdsTable();
+    });
+
+    // ข้อมูลข้อคำถาม Barthel ADL Index ทั้ง 10 ด้าน
+    const adlData = [
+      {
+        title: "1. การกินอาหาร (Feeding)",
+        options: [
+          { score: 0, text: "ตักอาหารเองไม่ได้ ต้องมีคนป้อนให้" },
+          { score: 1, text: "ตักอาหารเองได้แต่ต้องมีคนช่วยเตรียมหรือตัดให้" },
+          { score: 2, text: "กินเองได้ปกติช่วยเหลือตัวเองได้ดี" }
+        ]
+      },
+      {
+        title: "2. การล้างหน้า หวีผม แปรงฟัน (Grooming)",
+        options: [
+          { score: 0, text: "ทำเองไม่ได้ ต้องมีคนทำให้" },
+          { score: 1, text: "ทำเองได้ (รวมถึงที่ทำได้เองเล็กน้อย)" }
+        ]
+      },
+      {
+        title: "3. การใช้ห้องน้ำ (Toilet use)",
+        options: [
+          { score: 0, text: "ช่วยเหลือตัวเองไม่ได้เลย" },
+          { score: 1, text: "ทำเองได้บ้าง (ทำความสะอาดได้เองแต่ยังต้องการความช่วยเหลือบ้าง)" },
+          { score: 2, text: "ช่วยเหลือตัวเองได้ดี เข้าออกห้องน้ำเองได้ปกติ" }
+        ]
+      },
+      {
+        title: "4. การอาบน้ำ (Bathing)",
+        options: [
+          { score: 0, text: "ต้องมีคนช่วยหรือทำให้ทั้งหมด" },
+          { score: 1, text: "อาบน้ำเองได้ปกติ" }
+        ]
+      },
+      {
+        title: "5. การเคลื่อนย้ายบนเตียง/เก้าอี้ (Transfer)",
+        options: [
+          { score: 0, text: "ทำไม่ได้เลย / ลุกนั่งไม่ได้" },
+          { score: 1, text: "ต้องการคนช่วยมาก (เช่น ใช้คน 2 คนช่วยพยุง)" },
+          { score: 2, text: "ต้องการคนช่วยพยุงเล็กน้อย" },
+          { score: 3, text: "ทำได้เองปกติ" }
+        ]
+      },
+      {
+        title: "6. การเดินราบ (Mobility)",
+        options: [
+          { score: 0, text: "เดินไม่ได้เลย / นั่งรถเข็นตลอดเวลา" },
+          { score: 1, text: "เดินได้เองโดยมีคนช่วยพยุง" },
+          { score: 2, text: "เดินได้เองโดยใช้อุปกรณ์ช่วย (ไม้เท้า/Walker)" },
+          { score: 3, text: "เดินได้เองปกติ" }
+        ]
+      },
+      {
+        title: "7. การขึ้นลงบันได (Stairs)",
+        options: [
+          { score: 0, text: "ขึ้นลงไม่ได้เลย" },
+          { score: 1, text: "ต้องการคนช่วยพยุง" },
+          { score: 2, text: "ขึ้นลงเองได้ปกติ" }
+        ]
+      },
+      {
+        title: "8. การใส่เสื้อผ้า (Dressing)",
+        options: [
+          { score: 0, text: "ต้องมีคนช่วยสวมใส่ทั้งหมด" },
+          { score: 1, text: "ทำเองได้ครึ่งหนึ่ง ต้องมีคนช่วยอีกครึ่ง" },
+          { score: 2, text: "สวมใส่เสื้อผ้าได้เองปกติ" }
+        ]
+      },
+      {
+        title: "9. การกลั้นการขับถ่ายอุจจาระ (Bowels)",
+        options: [
+          { score: 0, text: "กลั้นไม่ได้ / ต้องสวนอุจจาระสม่ำเสมอ" },
+          { score: 1, text: "กลั้นไม่ได้บางครั้ง (สัปดาห์ละ 1 ครั้ง)" },
+          { score: 2, text: "กลั้นได้ปกติ ไม่มีปัญหา" }
+        ]
+      },
+      {
+        title: "10. การกลั้นการขับถ่ายปัสสาวะ (Bladder)",
+        options: [
+          { score: 0, text: "กลั้นไม่ได้ / ใส่สายสวนปัสสาวะตลอด" },
+          { score: 1, text: "กลั้นไม่ได้บางครั้ง (วันละ 1 ครั้ง)" },
+          { score: 2, text: "กลั้นได้ปกติ ไม่มีปัญหา" }
+        ]
+      }
+    ];
+
+    let adlScores = new Array(adlData.length).fill(0);
+
+    // ฟังก์ชันสร้างรายการ ADL ลงในหน้าจออัตโนมัติ
+    function initAdlForm() {
+      const container = document.getElementById('adlContainer');
+      if (!container || container.children.length > 0) return;
+
+      adlData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-3 rounded-2xl border border-slate-200 space-y-2 shadow-sm";
+        
+        let optionsHtml = '';
+        item.options.forEach(opt => {
+          optionsHtml += `
+            <label class="flex items-start gap-2 text-xs text-slate-700 cursor-pointer p-1.5 rounded-xl hover:bg-slate-50 transition-colors border border-transparent" id="adl-label-${index}-${opt.score}">
+              <input type="radio" name="adl_${index}" value="${opt.score}" onchange="selectAdlScore(${index}, ${opt.score})" class="mt-0.5 text-sky-600 w-4 h-4">
+              <span><strong>(${opt.score} แต้ม)</strong> ${opt.text}</span>
+            </label>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="flex justify-between items-center border-b pb-1.5">
+            <span class="text-xs font-bold text-slate-800">${item.title}</span>
+            <button type="button" onclick="playVoicePrompt('${item.title}')" class="voice-btn text-amber-600 bg-amber-50 p-1 rounded-full border border-amber-200 text-[10px]">🔊</button>
+          </div>
+          <div class="space-y-1">
+            ${optionsHtml}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function selectAdlScore(questionIndex, score) {
+      adlScores[questionIndex] = score;
+      calculateTotalAdl();
+    }
+
+    function calculateTotalAdl() {
+      const total = adlScores.reduce((a, b) => a + b, 0);
+      assessmentScores.adl = total; // บันทึกสะสมเข้าระบบรวม
+
+      const badge = document.getElementById('adlTotalBadge');
+      if (badge) {
+        badge.textContent = `คะแนน: ${total}/20`;
+        if (total >= 12) {
+          badge.className = "text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full";
+        } else if (total >= 5) {
+          badge.className = "text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 px-2.5 py-1 rounded-full";
+        } else {
+          badge.className = "text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 px-2.5 py-1 rounded-full";
+        }
+      }
+      updateLiveScoreDisplay();
+    }
+
+    // ฟังก์ชันสรุปผลรวมทั้งหมด (MoCA + TGDS-15 + ADL)
+    function processAllEvaluationsFinal() {
+      const name = document.getElementById('patientName').value.trim() || "ไม่ระบุชื่อ";
+      const age = parseInt(document.getElementById('patientAge').value) || 60;
+      const phone = document.getElementById('patientPhone')?.value.trim() || "-";
+      const address = document.getElementById('patientAddress')?.value.trim() || "-";
+      const isLowEdu = document.querySelector('input[name="eduLevel"]:checked').value === "le6";
+
+      // 1. คำนวณ MoCA
+      const rawMoCA = calculateRawTotal();
+      const bonus = (isLowEdu && rawMoCA < 30) ? 1 : 0;
+      const finalMoCA = Math.min(30, rawMoCA + bonus);
+
+      // ประเมินสถานะ MoCA พร้อมคำแปลผล
+      let statusText = "🟢 ปกติ (Normal)", icon = "🟢", intervalMonths = 6;
+      let mocaInterpretation = "การทำงานของสมองอยู่ในเกณฑ์ปกติ";
+      if (finalMoCA <= 17) {
+        statusText = "🔴 เสี่ยงภาวะสมองเสื่อม (High Risk)"; 
+        icon = "🔴"; 
+        intervalMonths = 1;
+        mocaInterpretation = "พบความบกพร่องรุนแรง แนะนำพบแพทย์เพื่อตรวจวินิจฉัย";
+      } else if (finalMoCA <= 25) {
+        statusText = "🟡 เสี่ยงรู้คิดบกพร่องเล็กน้อย (MCI)"; 
+        icon = "🟡"; 
+        intervalMonths = 3;
+        mocaInterpretation = "มีความบกพร่องทางสติปัญญาเล็กน้อย ควรติดตามอาการใกล้ชิด";
+      }
+
+      // 2. คะแนน TGDS (ภาวะซึมเศร้า) และการแปลผล
+      const tgdsTotal = assessmentScores.tgds || 0;
+      let tgdsInterpretation = "ปกติ ไม่พบภาวะซึมเศร้า";
+      if (tgdsTotal >= 11) {
+        tgdsInterpretation = "ซึมเศร้ารุนแรง (Severe Depression)";
+      } else if (tgdsTotal >= 6) {
+        tgdsInterpretation = "มีภาวะซึมเศร้า (Mild/Moderate Depression)";
+      }
+
+      // 3. คะแนน ADL (กิจวัตรประจำวัน) และการแปลผล
+      const adlTotal = assessmentScores.adl || 0;
+      let adlGroup = "กลุ่มติดสังคม";
+      if (adlTotal <= 4) adlGroup = "กลุ่มติดเตียง";
+      else if (adlTotal <= 11) adlGroup = "กลุ่มติดบ้าน";
+
+      const nextDue = new Date();
+      nextDue.setMonth(nextDue.getMonth() + intervalMonths);
+      const nextDueStr = nextDue.toISOString().split('T')[0];
+
+      finalPayload = {
+        name, age, phone, address,
+        rawScore: rawMoCA,
+        finalScore: finalMoCA,
+        eduBonus: bonus,
+        statusText,
+        mocaInterpretation,
+        tgdsScore: tgdsTotal,
+        tgdsInterpretation,
+        adlScore: adlTotal,
+        adlGroup,
+        nextDueDate: nextDueStr,
+        domainBreakdown: assessmentScores
+      };
+
+      // แสดงผลในหน้าจอ Result
+      document.getElementById('resIcon').innerText = icon;
+      document.getElementById('resName').innerText = name;
+      document.getElementById('resPhone').innerText = phone;
+      document.getElementById('resAddress').innerText = address;
+      
+      // อัปเดตข้อมูลคะแนนและการแปลผลลงในหน้าสรุป
+      document.getElementById('resScore').innerText = `${finalMoCA} / 30 คะแนน (${mocaInterpretation})`;
+      document.getElementById('resTgdsScore').innerText = `${tgdsTotal} / 15 คะแนน (${tgdsInterpretation})`;
+      document.getElementById('resAdlScore').innerText = `${adlTotal} / 20 คะแนน (${adlGroup})`;
+      
+      document.getElementById('resEduBonus').innerText = `+${bonus} คะแนน (${isLowEdu ? '<= 6 ปี' : '> 6 ปี'})`;
+      document.getElementById('resStatus').innerText = statusText;
+      document.getElementById('resDueDate').innerText = nextDueStr;
+
+      playVoicePrompt(`การประเมินทุกชุดเสร็จสิ้นแล้วค่ะ, คะแนนโอม็อคค่า ${finalMoCA} คะแนน อยู่ในเกณฑ์ ${mocaInterpretation}, ภาวะซึมเศร้า ${tgdsTotal} คะแนน อยู่ในเกณฑ์ ${tgdsInterpretation}, และกิจวัตรประจำวัน ${adlTotal} คะแนน อยู่ในกลุ่ม ${adlGroup} ค่ะ`);
+
+      goToPage('Result');
+    }
+
+    // เรียกฟังก์ชันสร้างฟอร์ม ADL เมื่อโหลดหน้าเว็บ
+    document.addEventListener("DOMContentLoaded", () => {
+      initAdlForm();
+    });
+
+  // 17. Submit Backend (Google Sheets) & Reset Form
     async function submitToBackend() {
       let queue = JSON.parse(localStorage.getItem('moca_local_records') || '[]');
       queue.push(finalPayload);
@@ -2897,20 +3294,60 @@
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(finalPayload)
           });
-          alert("บันทึกข้อมูลสำเร็จ");
+          alert("💾 บันทึกข้อมูลลง Google Sheets สำเร็จเรียบร้อยแล้วค่ะ!");
         } catch (e) {
-          alert("บันทึกในเครื่องแล้ว");
+          alert("⚠️ บันทึกข้อมูลลงหน่วยความจำเครื่องเรียบร้อยแล้ว (เกิดปัญหาการเชื่อมต่ออินเทอร์เน็ต)");
         }
       } else {
-        alert("บันทึกข้อมูลในเครื่องเรียบร้อย (โหมดออฟไลน์)");
+        alert("💾 บันทึกข้อมูลเก็บไว้ในเครื่องเรียบร้อย (โหมดออฟไลน์)");
       }
 
-      if (typeof liff !== "undefined" && liff.isInClient()) {
-        liff.closeWindow();
-      } else {
-        goToPage(1);
-      }
+      // รีเซ็ตฟอร์มทั้งหมดหลังจากบันทึกสำเร็จ
+      resetFormAndStartNew();
     }
+
+    // ฟังก์ชันรีเซ็ตฟอร์มและล้างค่าทั้งหมดเพื่อเริ่มทำใหม่
+    function resetFormAndStartNew() {
+      // 1. ล้างข้อมูลในช่องกรอกหน้า 1
+      const nameInput = document.getElementById('patientName');
+      const ageInput = document.getElementById('patientAge');
+      const phoneInput = document.getElementById('patientPhone');
+      const addressInput = document.getElementById('patientAddress');
+      if (nameInput) nameInput.value = '';
+      if (ageInput) ageInput.value = '';
+      if (phoneInput) phoneInput.value = '';
+      if (addressInput) addressInput.value = '';
+
+      // 2. รีเซ็ตคะแนนทั้งหมดในระบบ
+      Object.keys(assessmentScores).forEach(key => {
+        assessmentScores[key] = 0;
+      });
+
+      // 3. ล้าง Canvas การวาดรูปทั้งหมด
+      if (typeof resetTrailCanvas === 'function') resetTrailCanvas();
+      if (typeof clearCubeCanvas === 'function') clearCubeCanvas();
+      if (typeof clearClockCanvas === 'function') clearClockCanvas();
+
+      // 4. รีเซ็ตตาราง TGDS-15 และ ADL
+      tgdsScores.fill(0);
+      document.querySelectorAll('#tgdsTableBody button').forEach(btn => {
+        btn.className = "w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all inline-flex items-center justify-center";
+      });
+      const tgdsBadge = document.getElementById('tgdsTotalBadge');
+      if (tgdsBadge) { tgdsBadge.textContent = "คะแนน: 0/15"; tgdsBadge.className = "text-xs text-sky-600 font-bold bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200"; }
+
+      adlScores.fill(0);
+      document.querySelectorAll('#adlContainer input[type="radio"]').forEach(radio => {
+        radio.checked = false;
+      });
+      const adlBadge = document.getElementById('adlTotalBadge');
+      if (adlBadge) { adlBadge.textContent = "คะแนน: 0/20"; adlBadge.className = "text-xs text-sky-600 font-bold bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200"; }
+
+      // 5. อัปเดตคะแนนสดหน้าจอและกลับไปหน้า 1
+      updateLiveScoreDisplay();
+      goToPage(1);
+    }
+    
   </script>
 </body>
 </html>
